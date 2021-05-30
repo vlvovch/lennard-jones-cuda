@@ -1,0 +1,31 @@
+*.i
+*.ii
+*.gpu
+*.ptx
+*.cubin
+*.fatbin
+
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+build*/*
+Debug*/*
+Release*/*
+local*/*
+cmake-build*/*
+
+# Visual Studio
+.vs/*
+.vscode/*
+out/*
+
+# CLion
+.idea/*
+.vscode/*
+
+# Doxygen
+docs/doxygen/html*
