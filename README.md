@@ -58,7 +58,7 @@ make
 |:-------------------------:|:-------------------------:|
 | gaseous phase (T* = 1, ρ* = 0.01) | liquid phase (T* = 1, ρ* = 0.85)|
 | ![gas](src/gui/images/mixed-T1-rho0.3.png)  |  ![liquid](src/gui/images/solid-T1-rho1.1.png) |
-| mixed phase (T* = 1, ρ* = 0.3) | solid phase (T* = 1, ρ* = 0.85)|
+| mixed phase (T* = 1, ρ* = 0.3) | solid phase (T* = 1, ρ* = 1.1)|
 
 ## Third-party code
 
