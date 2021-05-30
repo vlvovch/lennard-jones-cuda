@@ -60,7 +60,7 @@ make
 | ![gas](src/gui/images/mixed-T1-rho0.3.png)  |  ![liquid](src/gui/images/solid-T1-rho1.1.png) |
 | mixed phase (T* = 1, ρ* = 0.3) | solid phase (T* = 1, ρ* = 0.85)|
 
-## Third-party code used
+## Third-party code
 
 - The [`helper-cuda.h`](https://raw.githubusercontent.com/NVIDIA/cuda-samples/master/Common/helper_cuda.h) and [`helper_string.h`](https://raw.githubusercontent.com/NVIDIA/cuda-samples/master/Common/helper_string.h) CUDA headers that are either downloaded from GitHub at the CMake step or taken from CUDA SDK if it is installed in the system
 - [**Mersenne Twister**](http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html) random number generator by M. Matsutomo and T. Nishimura ([implementation](http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/VERSIONS/C-LANG/MersenneTwister.h) by R. J. Wagner)
