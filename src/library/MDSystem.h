@@ -91,6 +91,10 @@ public:
   double momN, momN2, momN3, momN4;
   int momiters;
 
+  // Time-averaged quantities
+  double av_U_tot, av_T_tot, av_p_tot;
+  int av_iters;
+
   // Random number generator
   MTRand rangen;
 public:
@@ -135,6 +139,9 @@ public:
   void updatevelo();//(double vmax = 2., double shag = 0.02);
   SplineFunction getvelo();
   double Maxwell(double v);
+
+  // Reset averaging
+  void resetAveraging();
 
   // Radial distribution function
   SplineFunction RDF(double rmax = 5., double shag = 0.1);

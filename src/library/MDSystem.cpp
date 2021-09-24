@@ -99,6 +99,9 @@ void MDSystem::Reinitialize(const MDSystem::MDSystemConfiguration &config)
 
     momN = momN2 = momN3 = momN4 = 0.;
     momiters = 0;
+
+    av_U_tot = av_T_tot = av_p_tot = 0.;
+    av_iters = 0;
 }
 
 void MDSystem::ReallocateMemory()
@@ -138,8 +141,13 @@ void MDSystem::SampleInitialConditions()
   int Nsingle = ceil(pow(N, 1. / 3.));
   double dL = L / Nsingle;
   bool fl = 0;
+  std::vector<int> indis;
   for (int i = 0; i < 4 * N; i += 4)
+    indis.push_back(i);
+  std::random_shuffle(indis.begin(), indis.end());
+  for (int ii = 0; ii < N; ii++)
   {
+    int i = indis[ii];
     int iN = i / 4;
     int ix = iN % Nsingle;
     int iy = (iN / Nsingle) % Nsingle;
@@ -327,6 +335,12 @@ void MDSystem::CalculateParameters()
     T = 2. * K / 3. / N;
     P += m_config.N * T;
     P /= (m_config.N / m_config.rho);
+    U = K + V;
+
+    av_iters++;
+    av_U_tot += U;
+    av_p_tot += P;
+    av_T_tot += T;
 }
 
 double MDSystem::KineticTemperature(float* vel)
@@ -645,6 +659,12 @@ void MDSystem::updatevelo()
 double MDSystem::Maxwell(double v)
 {
     return 4*PI*pow(/*m_config.mass*/1./2./PI/T, 3./2.)*v*v*exp(-/*m_config.mass**/v*v/2./T);
+}
+
+void MDSystem::resetAveraging()
+{
+  av_U_tot = av_T_tot = av_p_tot = 0.;
+  av_iters = 0;
 }
 
 // Fluctuations in a subvolume compared to the binomial distribution

@@ -2,6 +2,8 @@
 #include "mainwindow.h"
 #include "cuda_runtime.h"
 
+#include <algorithm>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -132,7 +134,7 @@ MainWindow::MainWindow(QWidget *parent)
     QGridLayout *simulGridLayout = new QGridLayout;
     simulGridLayout->setAlignment(Qt::AlignLeft);
 
-    QLabel *labeldtau = new QLabel(tr("Δt<sup>*</sup> = "));
+    QLabel *labeldtau = new QLabel(tr("dt<sup>*</sup> = "));
     spindtau = new QDoubleSpinBox();
     spindtau->setDecimals(4);
     spindtau->setRange(0., 1000.);
@@ -208,11 +210,19 @@ MainWindow::MainWindow(QWidget *parent)
     ploten->graph(1)->setPen(QPen(Qt::red, 4));
     ploten->graph(1)->addData(0., glWidget->systGL->m_system->T);
     ploten->legend->setVisible(true);
+    //ploten->addGraph();
+    //ploten->graph(2)->setName(tr("Compressibility"));
+    //ploten->graph(2)->setPen(QPen(Qt::blue, 4));
+    //ploten->graph(2)->addData(0., glWidget->systGL->m_system->P / (glWidget->systGL->m_system->m_config.T0 * glWidget->systGL->m_system->m_config.rho));
+    //ploten->legend->setVisible(true);
 
     plotrdf->yAxis->setRange(0., 3.2);
     plotrdf->addGraph();
     plotrdf->graph(0)->setName(tr("Radial distribution function"));
     plotrdf->graph(0)->setPen(QPen(Qt::black, 4));
+    plotrdf->addGraph();
+    plotrdf->graph(1)->setName(tr("Low-density limit, g(r) = exp[-u(r)/T]"));
+    plotrdf->graph(1)->setPen(QPen(Qt::red, 4, Qt::DashLine));
     plotrdf->legend->setVisible(true);
     rdfiter = 0;
     //drawRDF();
@@ -275,9 +285,29 @@ void MainWindow::updateEner()
 {
     ploten->graph(0)->addData(glWidget->systGL->m_system->getTime(), (glWidget->systGL->m_system->K+glWidget->systGL->m_system->V)/glWidget->systGL->m_system->m_config.N);
     ploten->graph(1)->addData(glWidget->systGL->m_system->getTime(), glWidget->systGL->m_system->T);
+    //ploten->graph(2)->addData(glWidget->systGL->m_system->getTime(), glWidget->systGL->m_system->P / (glWidget->systGL->m_system->m_config.T0 * glWidget->systGL->m_system->m_config.rho));
     if (glWidget->systGL->m_system->getTime()>200.) 
       ploten->xAxis->setRange(ploten->xAxis->range().lower+glWidget->dt, ploten->xAxis->range().upper+glWidget->dt);
+    
+
+    double ymin = ploten->yAxis->range().lower;
+    double ymax = ploten->yAxis->range().upper;
+
+    double T = glWidget->systGL->m_system->T;
+    double u = (glWidget->systGL->m_system->K + glWidget->systGL->m_system->V) / glWidget->systGL->m_system->m_config.N;
+    double Z = 1.;// glWidget->systGL->m_system->P / (glWidget->systGL->m_system->m_config.T0 * glWidget->systGL->m_system->m_config.rho);
+    ymin = std::min(ymin, std::min(T, Z));
+    if (u < 0 && ymin > u)
+      ymin = u * 1.2;
+    ymax = std::max(ymax, std::max(T, Z));
+    ymax = std::max(ymax, u);
+
+
+    //ploten->yAxis->setRange(0., glWidget->systGL->m_system->m_config.T0 * 2);
+    ploten->yAxis->setRange(ymin, ymax);
+
     ploten->replot();
+
     drawRDF();
     plotrdf->replot();
     drawvel();
@@ -332,6 +362,18 @@ void MainWindow::drawRDF()
     else {
       plotrdf->yAxis->setRange(0., 3.2);
     }
+
+    plotrdf->graph(1)->clearData();
+    int iters = 100;
+    double dr = plotrdf->xAxis->range().upper / iters;
+    for (int i = 0; i < iters; ++i)
+    {
+      double r = dr * (i + 0.5);
+      double U = 4. * (1. / pow(r, 12) - 1. / pow(r, 6));
+      double T = glWidget->systGL->m_system->T;
+      double g = exp(-U / T);
+      plotrdf->graph(1)->addData(r, g);
+    }
 }
 
 void MainWindow::drawvel()
@@ -370,6 +412,7 @@ void MainWindow::stop()
 void MainWindow::reav()
 {
     glWidget->systGL->m_system->initvelo();
+    glWidget->systGL->m_system->resetAveraging();
     rdfiter = 0;
 }
 

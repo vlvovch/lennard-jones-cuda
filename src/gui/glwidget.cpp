@@ -150,12 +150,19 @@ void GLWidget::paintGL()
         fps = frames * 1.e3 / fpsTimer.restart();
         frames = 0;
     }
+    double u = (systGL->m_system->K + systGL->m_system->V) / systGL->m_system->m_config.N;
+    double u_av = systGL->m_system->av_U_tot / systGL->m_system->av_iters / systGL->m_system->m_config.N;
+    double T = systGL->m_system->T;
+    double T_av = systGL->m_system->av_T_tot / systGL->m_system->av_iters;
+    double Z    = systGL->m_system->P / T_av / systGL->m_system->m_config.rho;
+    double Z_av = (systGL->m_system->av_p_tot / systGL->m_system->av_iters) / T_av / systGL->m_system->m_config.rho;
     //renderText(10, 20, QString(tr("%1").arg(syst->x[0])));
     //renderText(10, height() - (60 * height())/500, QString(tr("Energy per particle: %1 meV")).arg((systGL->m_system->K + systGL->m_system->V) * ent / eneV * 1.e3 / systGL->m_system->m_config.N));
     //renderText(10, height() - (40 * height())/500, QString(tr("Instant temperature: %1 K")).arg((systGL->m_system->T) * ent / kb));
-    renderText(10, height() - (60 * height()) / 500, QString(tr("Energy per particle: %1")).arg((systGL->m_system->K + systGL->m_system->V) / systGL->m_system->m_config.N));
-    renderText(10, height() - (40 * height()) / 500, QString(tr("Instant temperature: %1")).arg((systGL->m_system->T)));
-    renderText(10, height() - (20 * height()) / 500, QString(tr("Pressure: %1")).arg((systGL->m_system->P)));
+    renderText(10, height() - (60 * height()) / 500, QString(tr("Energy per particle: u* = %1, <u*> = %2")).arg((systGL->m_system->K + systGL->m_system->V) / systGL->m_system->m_config.N).arg(u_av));
+    renderText(10, height() - (40 * height()) / 500, QString(tr("Instant temperature: T* = %1, <T*> = %2")).arg((systGL->m_system->T)).arg(T_av));
+    //renderText(10, height() - (20 * height()) / 500, QString(tr("Pressure: p* = %1, <p*> = %2")).arg((systGL->m_system->P)));
+    renderText(10, height() - (20 * height()) / 500, QString(tr("Compressibility: Z* = %1, <Z*> = %2")).arg(Z).arg(Z_av));
     renderText(10, (20 * height())/500, QString(tr("FPS: %1")).arg(fps));
     renderText(10, (40 * height()) / 500, QString(tr("Time: %1")).arg(systGL->m_system->getTime()));
     //renderText(10, (40 * height())/500, QString(tr("Time: %1 ps")).arg(systGL->m_system->getTime() * timt * 1.e12));
