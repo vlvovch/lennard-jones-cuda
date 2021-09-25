@@ -2,6 +2,7 @@
 #include "NumberStatistics.h"
 
 using namespace std;
+using namespace SampleMoments;
 
 int GetNsub(const MDSystem& syst, double fraction = 0.5) {
   double L = syst.L;
@@ -80,13 +81,12 @@ int main(int argc, char *argv[])
     }
 
     for (int i = 0; i < fracs.size(); ++i) {
-      StatsFlucs[i].AddEvent(static_cast<double>(GetNsub(syst, fracs[i])));
+      StatsFlucs[i].AddObservation(static_cast<double>(GetNsub(syst, fracs[i])));
     }
 
     //printf("%d ", iN);
     if (iN % 10 == 0) {
       for (int i = 0; i < fracs.size(); ++i) {
-        StatsFlucs[i].CalculateCentralMoments();
         printf("%15d %10lf +- %-10lf %10lf +- %-10lf %10lf +- %-10lf %10lf +- %-10lf\n",
           iN,
           StatsFlucs[i].GetMean(),
