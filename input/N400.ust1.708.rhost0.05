@@ -18,7 +18,7 @@ rho* 0.05
 teq 50.
 
 # The maximum time
-tfin 1000.
+tfin 50000.
 
 # The integration time step
 dt* 0.004
