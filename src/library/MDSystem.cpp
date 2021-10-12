@@ -370,6 +370,22 @@ void MDSystem::RenormalizeVelocities(bool RecalculateTkin)
   }
   K *= m_config.T0/ Tkin;
   T = m_config.T0;
+  U = K + V;
+}
+
+void MDSystem::RenormalizeVelocitiesToEnergy(double ust)
+{
+  double Kold = K;
+  double Udes = ust * m_config.N;
+  double Kdes = Udes - V;
+  for (int i = 0; i < 4 * m_config.N; i += 4)
+  {
+    h_Vel[i] *= sqrt(Kdes / Kold);
+    h_Vel[i + 1] *= sqrt(Kdes / Kold);
+    h_Vel[i + 2] *= sqrt(Kdes / Kold);
+  }
+  K = Kdes;
+  U = K + V;
 }
 
 void MDSystem::ApplyBoundaryConditions()

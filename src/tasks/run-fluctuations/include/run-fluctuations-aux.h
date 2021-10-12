@@ -33,12 +33,13 @@ struct RunFluctuationsParameters {
     parameters({
       {"N",           400},        // the number of particles
       {"T*",          1.4},        // the temperature, ignored if the microcanonical ensemble is used
-      {"u*",          1.4},        // the energy per particle, ignored if the canonical ensemble is used
+      //{"u*",          1.4},        // the energy per particle, ignored if the canonical ensemble is used
+      {"u*",          1.708},        // the energy per particle, ignored if the canonical ensemble is used
       {"rho*",        0.05},       // the particle density
       {"teq",         50.},        // the equilibration time time, if negative, the calculation goes on indefinitely until stopped
       {"tfin",        1000.},      // the maximum time, 
       {"dt*",         0.004},      // the integration time step
-      {"canonical",   1},          // the ensemble: 0 - microcanonical, 1 - canonical
+      {"canonical",   0},          // the ensemble: 0 - microcanonical, 1 - canonical
       {"subvolume_spacing", 0.05}, // the spacing in the values of the subvolume fractions
       {"useCUDA",     1}           // if available, use CUDA GPU
       })
@@ -113,6 +114,10 @@ struct RunFluctuationsParameters {
 
     return ret;
   }
+
+};
+
+namespace RunFluctuationsFunctions {
 
   // Calculate the number of particles in a subsystem at a given moment
   // type: 0 - |x| < xcut, 1 - |y| < ycut, 2 - |z| < zcut, 3 - cube around the center
@@ -190,5 +195,170 @@ struct RunFluctuationsParameters {
       ret[i] /= syst.m_config.N;
     return ret;
   }
-};
+
+
+  // Radial distribution function time average
+  struct RDF_average {
+    double max_r;
+    double dr;
+    int iters_rdf;
+    SplineFunction Gr;
+
+    RDF_average(double maxr = 5.0, double ddr = 0.03) : max_r(maxr), dr(ddr), iters_rdf(0) {}
+
+    void AddTimeStep(MDSystem& syst) {
+      SplineFunction crdf = syst.RDF(max_r, dr);
+      if (iters_rdf == 0)
+        Gr = crdf;
+      else
+      {
+        for (int i = 0; i < crdf.vals.size(); ++i)
+          Gr.vals[i].second = (Gr.vals[i].second * iters_rdf + crdf.vals[i].second) / (iters_rdf + 1);
+      }
+      iters_rdf++;
+    }
+
+    void PrintToFile(const std::string& filename) {
+      std::ofstream fout(filename);
+      if (fout.is_open()) {
+        fout << std::setw(15) << "r*" << " ";
+        fout << std::setw(15) << "G(r)" << " ";
+      }
+      fout << std::endl;
+
+      for (int i = 0; i < Gr.vals.size(); ++i) {
+        fout << std::setw(15) << Gr.vals[i].first << " ";
+        fout << std::setw(15) << Gr.vals[i].second << " ";
+        fout << std::endl;
+      }
+
+      fout.close();
+    }
+  };
+
+  // Time average for coordinate space fluctuations
+  struct CoordFlucsAverage {
+    int type;
+    double alpha_step;
+    std::vector<double> alphas, totsN, totsN2;
+    int iters;
+
+    CoordFlucsAverage(int type_ = 0, double alphastep = 0.05) :
+      type(type_),
+      alpha_step(alphastep),
+      iters(0) 
+    {
+      totsN = totsN2 = std::vector<double>(0);
+      for (double alpha = alphastep; alpha <= 1. - 1.e-9; alpha += alpha_step) {
+        totsN.push_back(0.);
+        totsN2.push_back(0.);
+        alphas.push_back(alpha);
+      }
+    }
+
+    void AddTimeStep(const MDSystem& syst) {
+      for (int ia = 0; ia < alphas.size(); ++ia) {
+        double alpha = alphas[ia];
+        int Nsub = GetNSubsystem(syst, alpha, type);
+        totsN[ia]  += static_cast<double>(Nsub);
+        totsN2[ia] += static_cast<double>(Nsub) * static_cast<double>(Nsub);
+      }
+      iters++;
+    }
+
+    void PrintToFile(const std::string& filename) {
+      std::ofstream fout(filename);
+      if (fout.is_open()) {
+        fout << std::setw(15) << "alpha" << " ";
+        fout << std::setw(15) << "<N>" << " ";
+        fout << std::setw(15) << "w[N]" << " ";
+        fout << std::setw(15) << "w[N]/(1-alpha)" << " ";
+      }
+      fout << std::endl;
+
+      for (int ia = 0; ia < alphas.size(); ++ia) {
+        double alpha = alphas[ia];
+
+        fout << std::setw(15) << alpha << " ";
+
+        double Nav  = totsN[ia] / iters;
+        double N2av = totsN2[ia] / iters;
+        double w = (N2av - Nav * Nav) / Nav;
+
+        fout << std::setw(15) << Nav << " ";
+        fout << std::setw(15) << w << " ";
+        fout << std::setw(15) << w / (1. - alpha) << " ";
+        fout << std::endl;
+      }
+
+      fout.close();
+    }
+  };
+
+
+  struct MomentumFlucsAverage {
+    int type;
+    double step;
+    std::vector<double> vcuts, totsN, totsN2;
+    int iters;
+    int totN;
+
+    MomentumFlucsAverage(const MDSystem& syst, int type_ = 0, double alphastep = 0.05) :
+      type(type_),
+      step(alphastep),
+      iters(0)
+    {
+      totsN = totsN2 = std::vector<double>(0);
+      double Tst = syst.m_config.T0;
+      totN = syst.m_config.N;
+      for (double alpha = alphastep; alpha <= 1. + 1.e-9; alpha += step) {
+        double vcut = sqrt(Tst) * alpha * 2.0;
+        totsN.push_back(0.);
+        totsN2.push_back(0.);
+        vcuts.push_back(vcut);
+      }
+    }
+
+    void AddTimeStep(const MDSystem& syst) {
+      for (int ia = 0; ia < vcuts.size(); ++ia) {
+        double vcut = vcuts[ia];
+        int Nsub = GetNsubVz(syst, vcut, type);
+        totsN[ia] += static_cast<double>(Nsub);
+        totsN2[ia] += static_cast<double>(Nsub) * static_cast<double>(Nsub);
+      }
+      iters++;
+    }
+
+    void PrintToFile(const std::string& filename) {
+      std::ofstream fout(filename);
+      if (fout.is_open()) {
+        fout << std::setw(15) << "vcut" << " ";
+        fout << std::setw(15) << "<N>" << " ";
+        fout << std::setw(15) << "alpha" << " ";
+        fout << std::setw(15) << "w[N]" << " ";
+        fout << std::setw(15) << "w[N]/(1-alpha)" << " ";
+      }
+      fout << std::endl;
+
+      for (int ia = 0; ia < vcuts.size(); ++ia) {
+        double vcut = vcuts[ia];
+
+        fout << std::setw(15) << vcut << " ";
+
+        double Nav = totsN[ia] / iters;
+        double N2av = totsN2[ia] / iters;
+        double w = (N2av - Nav * Nav) / Nav;
+
+        fout << std::setw(15) << Nav << " ";
+        double alpha = Nav / totN;
+        fout << std::setw(15) << alpha << " ";
+        fout << std::setw(15) << w << " ";
+        fout << std::setw(15) << w / (1. - alpha) << " ";
+        fout << std::endl;
+      }
+
+      fout.close();
+    }
+  };
+}
 #endif

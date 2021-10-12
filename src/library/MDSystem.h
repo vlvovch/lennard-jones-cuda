@@ -122,6 +122,8 @@ public:
 
   void RenormalizeVelocities(bool RecalculateTkin = false);
 
+  void RenormalizeVelocitiesToEnergy(double ust);
+
   void ApplyBoundaryConditions();
 
   double getTime() { return t; }
