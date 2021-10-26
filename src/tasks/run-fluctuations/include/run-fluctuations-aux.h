@@ -397,7 +397,7 @@ namespace RunFluctuationsFunctions {
   struct MomentumFlucsAverage {
     int type;
     double step;
-    const double Vfactor = 2.0;
+    const double Vfactor = 3.0;
     std::vector<double> vcuts, totsN, totsN2;
     int iters;
     int totN;
