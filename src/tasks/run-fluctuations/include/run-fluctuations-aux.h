@@ -156,7 +156,7 @@ namespace RunFluctuationsFunctions {
     return ret;
   }
 
-  // Calculate the number of particles in a momentum space subsystem at a given moment
+  // Calculate the number of particles in a momentum space subsystem at a given time moment
   // type: 0 - |vx| < vxcut, 1 - |vy| < vycut, 2 - |vz| < vzcut
   // fraction: fraction of the total volume
   static int GetNsubVz(const MDSystem& syst, double vcut = 0.5, int type = 0) {
@@ -180,6 +180,98 @@ namespace RunFluctuationsFunctions {
     }
 
     return ret;
+  }
+
+  // Calculate the number of particles in subsystems at a given time moment
+  // type: 0 - |x| < xcut, 1 - |y| < ycut, 2 - |z| < zcut, 3 - cube around the center
+  // alpha_step: step in the fractions of the total volume, from 0 to 1
+  static std::vector<int> GetNSubsystemBatch(const MDSystem& syst, double alpha_step = 0.05, int type = 3) {
+    double L = syst.L;
+    int N = syst.m_config.N;
+
+    std::vector<double> tLs;
+    std::vector<int> cnts;
+    
+    for (double alpha = alpha_step; alpha < 1. - 1.e-9; alpha += alpha_step) {
+      if (type == 3) {
+        tLs.push_back(L * pow(alpha, 1. / 3.));
+      }
+      cnts.push_back(0);
+    }
+
+    for (int i = 0; i < 4 * N; i += 4) {
+      double x = syst.h_Pos[i];
+      double y = syst.h_Pos[i + 1];
+      double z = syst.h_Pos[i + 2];
+      if (type == 3) {
+        double dx = (x - 0.5 * L);
+        double dy = (y - 0.5 * L);
+        double dz = (z - 0.5 * L);
+
+        //if (abs(dx) < 0.5 * tL && abs(dy) < 0.5 * tL && abs(dz) < 0.5 * tL)
+        //  ret++;
+        int tindx = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), abs(dx) / 0.5));
+        int tindy = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), abs(dy) / 0.5));
+        int tindz = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), abs(dz) / 0.5));
+        int tind = std::max({ tindx,tindy,tindz });
+        if (tind < cnts.size())
+          cnts[tind]++;
+      }
+      else {
+        double coord = x;
+        if (type == 1)
+          coord = y;
+        else if (type == 2)
+          coord = z;
+
+        coord /= L;
+        int tind = (int)(coord / alpha_step);
+        if (tind < cnts.size())
+          cnts[tind]++;
+      }
+    }
+
+    for (int i = 1; i < cnts.size(); ++i)
+      cnts[i] += cnts[i - 1];
+
+    return cnts;
+  }
+
+  // Calculate the number of particles in a momentum space subsystem at a given time moment
+  // type: 0 - |vx| < vxcut, 1 - |vy| < vycut, 2 - |vz| < vzcut
+  // alpha_step: step in the fractions of the total volume, from 0 to 1
+  static std::vector<int> GetNsubVzBatch(const MDSystem& syst, double vcut_max, double alpha_step = 0.05, int type = 0) {
+    int N = syst.m_config.N;
+
+    std::vector<int> cnts;
+
+    for (double alpha = alpha_step; alpha < 1. + 1.e-9; alpha += alpha_step) {
+      cnts.push_back(0);
+    }
+
+    int ret = 0;
+
+    for (int i = 0; i < 4 * N; i += 4) {
+      double vx = syst.h_Vel[i];
+      double vy = syst.h_Vel[i + 1];
+      double vz = syst.h_Vel[i + 2];
+
+      double v = vx;
+      if (type == 1)
+        v = vy;
+      else if (type == 2)
+        v = vz;
+
+      v /= vcut_max;
+      int tind = (int)(abs(v) / alpha_step);
+      if (tind < cnts.size())
+        cnts[tind]++;
+    }
+
+    for (int i = 1; i < cnts.size(); ++i)
+      cnts[i] += cnts[i - 1];
+
+    return cnts;
   }
 
   // Get the average velocities
@@ -257,11 +349,17 @@ namespace RunFluctuationsFunctions {
     }
 
     void AddTimeStep(const MDSystem& syst) {
+      std::vector<int> cnts = GetNSubsystemBatch(syst, alpha_step, type);
       for (int ia = 0; ia < alphas.size(); ++ia) {
         double alpha = alphas[ia];
-        int Nsub = GetNSubsystem(syst, alpha, type);
+        //int Nsub = GetNSubsystem(syst, alpha, type);
+        int Nsub = cnts[ia];
         totsN[ia]  += static_cast<double>(Nsub);
         totsN2[ia] += static_cast<double>(Nsub) * static_cast<double>(Nsub);
+
+        /*if (ia == alphas.size() - 1) {
+          std::cout << Nsub << " " << cnts[ia] << " ; ";
+        }*/
       }
       iters++;
     }
@@ -299,6 +397,7 @@ namespace RunFluctuationsFunctions {
   struct MomentumFlucsAverage {
     int type;
     double step;
+    const double Vfactor = 2.0;
     std::vector<double> vcuts, totsN, totsN2;
     int iters;
     int totN;
@@ -312,7 +411,7 @@ namespace RunFluctuationsFunctions {
       double Tst = syst.m_config.T0;
       totN = syst.m_config.N;
       for (double alpha = alphastep; alpha <= 1. + 1.e-9; alpha += step) {
-        double vcut = sqrt(Tst) * alpha * 2.0;
+        double vcut = sqrt(Tst) * alpha * Vfactor;
         totsN.push_back(0.);
         totsN2.push_back(0.);
         vcuts.push_back(vcut);
@@ -320,11 +419,17 @@ namespace RunFluctuationsFunctions {
     }
 
     void AddTimeStep(const MDSystem& syst) {
+      std::vector<int> cnts = GetNsubVzBatch(syst, sqrt(syst.m_config.T0) * Vfactor, step, type);
       for (int ia = 0; ia < vcuts.size(); ++ia) {
         double vcut = vcuts[ia];
-        int Nsub = GetNsubVz(syst, vcut, type);
+        //int Nsub = GetNsubVz(syst, vcut, type);
+        int Nsub = cnts[ia];
         totsN[ia] += static_cast<double>(Nsub);
         totsN2[ia] += static_cast<double>(Nsub) * static_cast<double>(Nsub);
+
+        //if (ia == vcuts.size() - 1) {
+        //  std::cout << Nsub << " " << cnts[ia] << " ; ";
+        //}
       }
       iters++;
     }
