@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 	double tot_N = 0.0, tot_N2 = 0.0;  // Fluctuations at \alpha = 0.5
 	int totIters = 0;  // Total iterations
 	syst.resetAveraging();
-	while (t < tfin) {
+	while (t < tfin || tfin < 0.) {
 		syst.Integrate(dt);
 		t += dt;
 		totIters++;
