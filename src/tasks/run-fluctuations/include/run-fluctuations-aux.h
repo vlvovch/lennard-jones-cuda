@@ -139,7 +139,7 @@ namespace RunFluctuationsFunctions {
         double dy = (y - 0.5 * L);
         double dz = (z - 0.5 * L);
 
-        if (abs(dx) < 0.5 * tL && abs(dy) < 0.5 * tL && abs(dz) < 0.5 * tL)
+        if (std::abs(dx) < 0.5 * tL && std::abs(dy) < 0.5 * tL && std::abs(dz) < 0.5 * tL)
           ret++;
       }
       else {
@@ -175,7 +175,7 @@ namespace RunFluctuationsFunctions {
       else if (type == 2)
         v = vz;
 
-      if (abs(v) < vcut)
+      if (std::abs(v) < vcut)
         ret++;
     }
 
@@ -210,9 +210,9 @@ namespace RunFluctuationsFunctions {
 
         //if (abs(dx) < 0.5 * tL && abs(dy) < 0.5 * tL && abs(dz) < 0.5 * tL)
         //  ret++;
-        int tindx = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), abs(dx) / 0.5));
-        int tindy = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), abs(dy) / 0.5));
-        int tindz = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), abs(dz) / 0.5));
+        int tindx = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), std::abs(dx) / 0.5));
+        int tindy = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), std::abs(dy) / 0.5));
+        int tindz = std::distance(tLs.begin(), upper_bound(tLs.begin(), tLs.end(), std::abs(dz) / 0.5));
         int tind = std::max({ tindx,tindy,tindz });
         if (tind < cnts.size())
           cnts[tind]++;
@@ -263,7 +263,7 @@ namespace RunFluctuationsFunctions {
         v = vz;
 
       v /= vcut_max;
-      int tind = (int)(abs(v) / alpha_step);
+      int tind = (int)(std::abs(v) / alpha_step);
       if (tind < cnts.size())
         cnts[tind]++;
     }
