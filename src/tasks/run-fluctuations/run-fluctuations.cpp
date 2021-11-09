@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 		tot_N2 += tN * tN;
 
 		// Output
-		if (totIters % 100 == 0) {
+		if (totIters % 1000 == 0) {
 			cout << setw(15) << t << " ";
 			cout << setw(15) << syst.U / syst.m_config.N << " ";
 			cout << setw(15) << syst.T << " ";
