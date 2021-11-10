@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	double Tst = params.parameters["T*"];
 	double ust = params.parameters["u*"];
 
-  vector<double> fracs;
+    vector<double> fracs;
 	{
 		double dfr = params.parameters["subvolume_spacing"];
 		for (double tfr = dfr; tfr <= 1.; tfr += dfr)
@@ -99,7 +99,9 @@ int main(int argc, char *argv[])
 	fout << setw(15) << "<u*>" << " ";
 	fout << setw(15) << "<T*>" << " ";
 	fout << setw(15) << "<Z>" << " ";
-	fout << setw(15) << "<w>/(1-x)" << " ";
+	fout << setw(15) << "<wx>/(1-x)" << " ";
+	fout << setw(15) << "<wy>/(1-x)" << " ";
+	fout << setw(15) << "<wz>/(1-x)" << " ";
 	fout << setw(15) << "<vx>" << " ";
 	fout << setw(15) << "<vy>" << " ";
 	fout << setw(15) << "<vz>" << " ";
@@ -154,7 +156,26 @@ int main(int argc, char *argv[])
 			fout << setw(15) << syst.av_U_tot / syst.av_iters / syst.m_config.N << " ";
 			fout << setw(15) << Tav << " ";
 			fout << setw(15) << syst.av_p_tot / syst.av_iters / (syst.m_config.rho * Tav) << " ";
-			fout << setw(15) << (N2av - Nav * Nav) / Nav / (1. - 0.5) << " ";
+			//fout << setw(15) << (N2av - Nav * Nav) / Nav / (1. - 0.5) << " ";
+			{
+				RunFluctuationsFunctions::CoordFlucsAverage *flucs;
+				for(int ic = 0; ic < 3; ++ic) {
+					if (ic == 0)
+						flucs = &flucs_coord_X;
+					else if (ic == 1)
+						flucs = &flucs_coord_Y;
+					else
+						flucs = &flucs_coord_Z;
+
+					int ti = (*flucs).alphas.size() / 2;
+					double alpha = (*flucs).alphas[ti];
+					double Nav  = (*flucs).totsN[ti]  / iters;
+					double N2av = (*flucs).totsN2[ti] / iters;
+					double tw = (N2av - Nav * Nav) / Nav;
+					fout << setw(15) << tw / (1. - alpha) << " ";
+				}
+			}
+
 
 			auto velo = RunFluctuationsFunctions::GetAvVel(syst);
 			fout << setw(15) << velo[0] << " ";
