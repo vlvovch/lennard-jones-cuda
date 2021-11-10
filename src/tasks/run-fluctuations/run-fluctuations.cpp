@@ -169,8 +169,8 @@ int main(int argc, char *argv[])
 
 					int ti = (*flucs).alphas.size() / 2;
 					double alpha = (*flucs).alphas[ti];
-					double Nav  = (*flucs).totsN[ti]  / iters;
-					double N2av = (*flucs).totsN2[ti] / iters;
+					double Nav  = (*flucs).totsN[ti]  / (*flucs).iters;
+					double N2av = (*flucs).totsN2[ti] / (*flucs).iters;
 					double tw = (N2av - Nav * Nav) / Nav;
 					fout << setw(15) << tw / (1. - alpha) << " ";
 				}
