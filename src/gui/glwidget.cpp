@@ -144,6 +144,7 @@ void GLWidget::paintGL()
 
     if (wrk) systGL->draw();
     glColor3ub(255,255,255);
+    glColor3ub(0,0,0);
     frames++;
     if (frames%20==0)
     {

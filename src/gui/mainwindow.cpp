@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     QLabel *labelN = new QLabel(tr("N = "));
     spinN = new QSpinBox();
     spinN->setRange(1, 100000);
-    spinN->setValue(100);
+    spinN->setValue(400);
     paramsLayout->addWidget(labelN,0,0);
     paramsLayout->addWidget(spinN,0,1);
 
@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
     spinT->setDecimals(3);
     spinT->setRange(0., 1000.);
     //spinT->setValue(0.722);
-    spinT->setValue(0.710);
+    spinT->setValue(1.321);
     spinT->setSingleStep(0.1);
     paramsLayout->addWidget(labelT, 1, 0);
     paramsLayout->addWidget(spinT, 1, 1);
@@ -77,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     spinrho = new QDoubleSpinBox();
     spinrho->setDecimals(3);
     spinrho->setRange(0., 1000.);
-    spinrho->setValue(0.844);
+    spinrho->setValue(0.316);
     spinrho->setSingleStep(0.1);
     paramsLayout->addWidget(labelrho,2,0);
     paramsLayout->addWidget(spinrho,2,1);
@@ -101,7 +101,7 @@ MainWindow::MainWindow(QWidget *parent)
     ensLayout->addWidget(RBMicro);
     ensLayout->addWidget(RBCanon);
     EnsGroup->setLayout(ensLayout);
-    RBMicro->setChecked(true);
+    RBCanon->setChecked(true);
     connect(RBCanon, SIGNAL(toggled(bool)), this, SLOT(updateEnsemble()));
 
     QGroupBox* BoundaryGroup = new QGroupBox(tr("Boundary conditions"));
