@@ -151,6 +151,8 @@ MainWindow::MainWindow(QWidget *parent)
     simulGridLayout->addWidget(spinpre,1,1);
     SimulGroup->setLayout(simulGridLayout);
 
+    CBframes = new QCheckBox(tr("Record frames"));
+
 
     QVBoxLayout *buttonLayout = new QVBoxLayout;
     buttonLayout->setAlignment(Qt::AlignLeft);
@@ -181,6 +183,7 @@ MainWindow::MainWindow(QWidget *parent)
     interLayout->addWidget(HardGroup);
     interLayout->addWidget(SimulGroup);
     //interLayout->addWidget(buttonRestart);
+    interLayout->addWidget(CBframes, 0, Qt::AlignLeft);
     interLayout->addLayout(buttonLayout);
     //interLayout->addLayout(traceGridLayout);
     interLayout->addWidget(labelCopyright, 0, Qt::AlignRight);
@@ -400,6 +403,8 @@ void MainWindow::cont()
     glWidget->anim->start(10);
     RBPeriodic->setEnabled(false);
     RBWalls->setEnabled(false);
+
+    glWidget->record_frames = CBframes->isChecked();
 }
 
 void MainWindow::stop()

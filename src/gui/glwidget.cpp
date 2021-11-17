@@ -43,6 +43,10 @@ void GLWidget::Initialize()
     whint = 800;
     hhint = 600;
     xRot = yRot = zRot = 0;
+
+    video_frame = 0;
+
+    record_frames = false;
 }
 //! [1]
 
@@ -113,7 +117,12 @@ void GLWidget::change()
       //systGL->m_system->Integrate(dt/pre);
     updateGL();
     emit updateGraph();
+
+    
+    if (record_frames)
+      this->grabFrameBuffer().save("out_anim/screen" + QStringLiteral("%1").arg(video_frame++, 5, 10, QLatin1Char('0')) + ".png");
 	  //printf("%lf\n", (systGL->m_system->K + systGL->m_system->V)/ systGL->m_system->m_config.N);
+
 }
 
 void GLWidget::changemode(int mode)
@@ -157,6 +166,9 @@ void GLWidget::paintGL()
     double T_av = systGL->m_system->av_T_tot / systGL->m_system->av_iters;
     double Z    = systGL->m_system->P / T_av / systGL->m_system->m_config.rho;
     double Z_av = (systGL->m_system->av_p_tot / systGL->m_system->av_iters) / T_av / systGL->m_system->m_config.rho;
+
+    //return;
+
     //renderText(10, 20, QString(tr("%1").arg(syst->x[0])));
     //renderText(10, height() - (60 * height())/500, QString(tr("Energy per particle: %1 meV")).arg((systGL->m_system->K + systGL->m_system->V) * ent / eneV * 1.e3 / systGL->m_system->m_config.N));
     //renderText(10, height() - (40 * height())/500, QString(tr("Instant temperature: %1 K")).arg((systGL->m_system->T) * ent / kb));

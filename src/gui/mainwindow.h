@@ -35,6 +35,8 @@ private:
     QRadioButton *RBSpheres, *RBPoints;
     QPushButton *buttonRestart, *buttonCont, *buttonStop, *buttonReaverage;
 
+    QCheckBox* CBframes;
+
     QVBoxLayout *lhsLayout;
 
     QGridLayout *plotsLayout;

@@ -32,6 +32,8 @@ public:
     // Numerical integration per time step
     int pre;
 
+    bool record_frames;
+
 
     int whint, hhint;
 //! [0]
@@ -70,6 +72,8 @@ private:
     QElapsedTimer fpsTimer;
     int frames;
     double fps;
+
+    int video_frame;
 };
 //! [3]
 
