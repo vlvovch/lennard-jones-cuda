@@ -1,0 +1,30 @@
+# Sample input file for Lennard-Jones molecular dynamics simulation along an isotherm in the canonical ensemble
+# Format: <parameter-name> <parameter-value>
+# Everything after # is ignored
+
+# The number of particles
+N 400
+
+# The temperature
+T* 1.4
+
+# The minimum particle density
+rho*_min 0.01
+
+# The maximum particle density
+rho*_max 0.71
+
+# The step in particle density
+drho* 0.01
+
+# The equilibration time
+teq 50.
+
+# The maximum time
+tfin 5000.
+
+# The integration time step
+dt* 0.004
+
+# If available, use CUDA GPU
+useCUDA 1

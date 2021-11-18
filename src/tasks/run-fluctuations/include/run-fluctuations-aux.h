@@ -20,6 +20,8 @@
 #include "MDSystem.h"
 #include "NumberStatistics.h"
 
+#include "../../auxiliary/time-average-aux.h"
+
 
 struct RunFluctuationsParameters {
   // Output file names prefix
@@ -37,8 +39,8 @@ struct RunFluctuationsParameters {
       //{"u*",          1.4},        // the energy per particle, ignored if the canonical ensemble is used
       {"u*",          1.708},        // the energy per particle, ignored if the canonical ensemble is used
       {"rho*",        0.60},       // the particle density
-      {"teq",         10.},        // the equilibration time time, if negative, the calculation goes on indefinitely until stopped
-      {"tfin",        1000.},      // the maximum time, 
+      {"teq",         10.},        // the equilibration time time
+      {"tfin",        1000.},      // the maximum time, if negative, the calculation goes on indefinitely until stopped
       {"dt*",         0.004},      // the integration time step
       {"canonical",   1},          // the ensemble: 0 - microcanonical, 1 - canonical
       {"subvolume_spacing", 0.05}, // the spacing in the values of the subvolume fractions
@@ -333,10 +335,11 @@ namespace RunFluctuationsFunctions {
   struct CoordFlucsAverage {
     int type;
     double alpha_step;
-    std::vector<SampleMoments::NumberStatistics> stats;
+    //std::vector<SampleMoments::NumberStatistics> stats;
     std::vector<double> alphas, totsN, totsN2;
-    std::vector<double> lastsN;
-    std::vector<double> corrsN;
+    //std::vector<double> lastsN;
+    //std::vector<double> corrsN;
+    std::vector<TimeAverage> stats;
     int iters;
 
     CoordFlucsAverage(int type_ = 0, double alphastep = 0.05) :
@@ -348,10 +351,11 @@ namespace RunFluctuationsFunctions {
       for (double alpha = alphastep; alpha <= 1. - 1.e-9; alpha += alpha_step) {
         totsN.push_back(0.);
         totsN2.push_back(0.);
-        lastsN.push_back(0.);
-        corrsN.push_back(0.);
+        //lastsN.push_back(0.);
+        //corrsN.push_back(0.);
         alphas.push_back(alpha);
-        stats.push_back(SampleMoments::NumberStatistics());
+        //stats.push_back(SampleMoments::NumberStatistics());
+        stats.push_back(TimeAverage());
       }
     }
 
@@ -366,11 +370,11 @@ namespace RunFluctuationsFunctions {
 
         stats[ia].AddObservation(Nsub);
 
-        if (iters > 0) {
-          corrsN[ia] += lastsN[ia] * static_cast<double>(Nsub);
-        }
+        //if (iters > 0) {
+        //  corrsN[ia] += lastsN[ia] * static_cast<double>(Nsub);
+        //}
 
-        lastsN[ia] = static_cast<double>(Nsub);
+        //lastsN[ia] = static_cast<double>(Nsub);
 
         /*if (ia == alphas.size() - 1) {
           std::cout << Nsub << " " << cnts[ia] << " ; ";
@@ -401,17 +405,18 @@ namespace RunFluctuationsFunctions {
         double w = (N2av - Nav * Nav) / Nav;
 
         Nav = stats[ia].GetMean();
-        double Nvar = stats[ia].GetVariance();
-        w = stats[ia].GetScaledVariance();// stats[ia].GetVariance() / stats[ia].GetMean();
-        double Ncorrav = corrsN[ia] / (iters - 1) - Nav * Nav;
-        double s = 2./ log(Nvar / Ncorrav);
-        if (s < 0.)
-          s = 1.;
+        double Nvar = stats[ia].stats.GetVariance();
+        w = stats[ia].stats.GetScaledVariance();// stats[ia].GetVariance() / stats[ia].GetMean();
+        //double Ncorrav = corrsN[ia] / (iters - 1) - Nav * Nav;
+        //double s = 2./ log(Nvar / Ncorrav);
+        //if (s < 0.)
+        //  s = 1.;
+        double s = stats[ia].GetS();
 
         fout << std::setw(15) << Nav << " ";
         fout << std::setw(15) << w << " ";
         fout << std::setw(15) << w / (1. - alpha) << " ";
-        fout << std::setw(15) << stats[ia].GetScaledVarianceError() * sqrt(s) / (1. - alpha) << " ";
+        fout << std::setw(15) << stats[ia].stats.GetScaledVarianceError() * sqrt(s) / (1. - alpha) << " ";
         fout << std::setw(15) << s << " ";
         fout << std::endl;
       }
@@ -426,9 +431,10 @@ namespace RunFluctuationsFunctions {
     double step;
     const double Vfactor = 3.0;
     std::vector<double> vcuts, totsN, totsN2;
-    std::vector<SampleMoments::NumberStatistics> stats;
-    std::vector<double> lastsN;
-    std::vector<double> corrsN;
+    //std::vector<SampleMoments::NumberStatistics> stats;
+    //std::vector<double> lastsN;
+    //std::vector<double> corrsN;
+    std::vector<TimeAverage> stats;
     int iters;
     int totN;
 
@@ -445,9 +451,10 @@ namespace RunFluctuationsFunctions {
         totsN.push_back(0.);
         totsN2.push_back(0.);
         vcuts.push_back(vcut);
-        lastsN.push_back(0.);
-        corrsN.push_back(0.);
-        stats.push_back(SampleMoments::NumberStatistics());
+        //lastsN.push_back(0.);
+        //corrsN.push_back(0.);
+        //stats.push_back(SampleMoments::NumberStatistics());
+        stats.push_back(TimeAverage());
       }
     }
 
@@ -462,11 +469,11 @@ namespace RunFluctuationsFunctions {
 
         stats[ia].AddObservation(Nsub);
 
-        if (iters > 0) {
-          corrsN[ia] += lastsN[ia] * static_cast<double>(Nsub);
-        }
+        //if (iters > 0) {
+        //  corrsN[ia] += lastsN[ia] * static_cast<double>(Nsub);
+        //}
 
-        lastsN[ia] = static_cast<double>(Nsub);
+        //lastsN[ia] = static_cast<double>(Nsub);
 
         //if (ia == vcuts.size() - 1) {
         //  std::cout << Nsub << " " << cnts[ia] << " ; ";
@@ -498,19 +505,20 @@ namespace RunFluctuationsFunctions {
         double w = (N2av - Nav * Nav) / Nav;
 
         Nav = stats[ia].GetMean();
-        double Nvar = stats[ia].GetVariance();
-        w = stats[ia].GetScaledVariance();// stats[ia].GetVariance() / stats[ia].GetMean();
-        double Ncorrav = corrsN[ia] / (iters - 1) - Nav * Nav;
-        double s = 2. / log(Nvar / Ncorrav);
-        if (s < 0.)
-          s = 1.;
+        double Nvar = stats[ia].stats.GetVariance();
+        w = stats[ia].stats.GetScaledVariance();// stats[ia].GetVariance() / stats[ia].GetMean();
+        //double Ncorrav = corrsN[ia] / (iters - 1) - Nav * Nav;
+        //double s = 2. / log(Nvar / Ncorrav);
+        //if (s < 0.)
+        //  s = 1.;
+        double s = stats[ia].GetS();
 
         fout << std::setw(15) << Nav << " ";
         double alpha = Nav / totN;
         fout << std::setw(15) << alpha << " ";
         fout << std::setw(15) << w << " ";
         fout << std::setw(15) << w / (1. - alpha) << " ";
-        fout << std::setw(15) << stats[ia].GetScaledVarianceError() * sqrt(s) / (1. - alpha) << " ";
+        fout << std::setw(15) << stats[ia].stats.GetScaledVarianceError() * sqrt(s) / (1. - alpha) << " ";
         fout << std::setw(15) << s << " ";
         fout << std::endl;
       }

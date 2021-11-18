@@ -1,2 +1,3 @@
 add_subdirectory(semiGCEfluctuations)
 add_subdirectory(run-fluctuations)
+add_subdirectory(run-isotherm)

@@ -14,10 +14,10 @@ u* 1.708
 # The particle density
 rho* 0.05
 
-# The equilibration time, if negative, the calculation goes on indefinitely until stopped
+# The equilibration time
 teq 50.
 
-# The maximum time
+# The maximum time, if negative, the calculation goes on indefinitely until stopped
 tfin 50000.
 
 # The integration time step
