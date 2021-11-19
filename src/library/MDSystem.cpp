@@ -13,7 +13,7 @@ extern "C"
     void allocateArray(float** dest, int number);
     void deleteNBodyArrays(float* vel[2]);
     void deleteArray(float* arr);
-    void calculateNForces(float* Pos, float* Force, float *host_pressure,
+    void calculateNForces(float* Pos, float* Force, float *host_pressure, float* host_Pxy,
       int numBodies, float host_L, int Lperiodic, int* host_RDF, float host_dr2, int p, int q);
     void copyArrayFromDevice(float* host, const float* device, unsigned int pbo, int numBodies);
     void copyArrayToDevice(float* device, const float* host, int numBodies);
@@ -233,10 +233,12 @@ void MDSystem::CalculateForces(float *frc)
         copyArrayToDevice(d_Pos, h_Pos, N);
 
         float pressure = 0.f;
-        calculateNForces(d_Pos, d_Force, &pressure,
+        float pxy = 0.f;
+        calculateNForces(d_Pos, d_Force, &pressure, &pxy,
           N, static_cast<float>(L), !m_config.boundaryConditions, &NdNdr2[0], rdf_dr2, m_config.CUDABlockSize, 1);
 
         P = pressure;
+        Pshear = pxy;
 
         copyArrayFromDevice(frc, d_Force, 0, N);
     }

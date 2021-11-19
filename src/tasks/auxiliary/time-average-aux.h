@@ -130,7 +130,26 @@ struct AnalyzeExpDecay
 		return ret / var;
 	}
 
-	void PrintToFile(const std::string& filename, double dt, double tau) {
+	double GetTauIntegral(int ind, double tau = -1.) {
+		if (tau < 0.)
+			tau = GetTauLocal(ind);
+		double ret = 0.;
+		double var = mean.GetVariance();
+		for (int ii = 0; ii < ind; ++ii) {
+			//if (stats[ii].GetNumberOfObservations() < 1000 || stats[ii + 1].GetNumberOfObservations() < 1000)
+			//	continue;
+
+			double corr1 = stats[ii].GetMean() - mean.GetMean() * mean.GetMean();
+			double corr2 = stats[ii + 1].GetMean() - mean.GetMean() * mean.GetMean();
+
+			ret += 0.5 * (corr1 + corr2) * (intervals[ii + 1] - intervals[ii]);
+		}
+		ret /= var;
+		ret += (stats[ind].GetMean() - mean.GetMean() * mean.GetMean()) / var * tau;
+		return ret;
+	}
+
+	void PrintToFile(const std::string& filename, double dt, double tau, double factor = 1.) {
 		std::ofstream fout(filename);
 
 		fout << std::setw(15) << "t" << " ";
@@ -142,6 +161,8 @@ struct AnalyzeExpDecay
 		//fout << setw(15) << "exp(-n*t/tau)" << " ";
 		fout << std::setw(15) << "tau_extr" << " ";
 		fout << std::setw(15) << "tau_extr_loc" << " ";
+		fout << std::setw(15) << "tau_integral" << " ";
+		fout << std::setw(15) << "coefficient" << " ";
 		//fout << setw(15) << "tau_sq_extr" << " ";
 		fout << std::endl;
 
@@ -165,6 +186,16 @@ struct AnalyzeExpDecay
 				fout << std::setw(15) << dt * GetTauLocal(ii) << " ";
 			else
 				fout << std::setw(15) << tau << " ";
+
+			if (ii != 0)
+				fout << std::setw(15) << dt * GetTauIntegral(ii, GetTauLocal(ii)) << " ";
+			else
+				fout << std::setw(15) << dt * GetTauIntegral(ii, tau / dt) << " ";
+
+			if (ii != 0)
+				fout << std::setw(15) << dt * GetTauIntegral(ii, GetTauLocal(ii)) * mean.GetVariance() * factor << " ";
+			else
+				fout << std::setw(15) << dt * GetTauIntegral(ii, tau / dt) * mean.GetVariance() * factor << " ";
 
 			//if (ii != 0)
 			//	fout << setw(15) << dt * GetTauSquare(ii) << " ";

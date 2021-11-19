@@ -17,6 +17,9 @@ __device__ __constant__ float dr2;
 // pressure via the virial theorem
 __device__ float pressure;
 
+// tau_xy of stress-eneryg tensor via virial theorem
+__device__ float Pxy;
+
 //__device__ float4
 __device__ void
 bodyBodyInteraction(float4 &ai, float4 bi, float4 &bj, int *RDF)
@@ -52,6 +55,7 @@ bodyBodyInteraction(float4 &ai, float4 bi, float4 &bj, int *RDF)
     ai.w += invDist6 * invDist6 - invDist6;
     bj.w += s * distSqr;
 
+    atomicAdd(&Pxy, -r.x * r.y * s);
   }
 }
 
@@ -228,7 +232,7 @@ extern "C"
   void threadSync() { cudaThreadSynchronize(); }
 
   void
-    calculateNForces(float* Pos, float* Force, float* host_pressure,
+    calculateNForces(float* Pos, float* Force, float* host_pressure, float* host_Pxy,
       int numBodies, float host_L, int Lperiodic, int *host_RDF, float host_dr2, int blockSize, int q)
   {
     int sharedMemSize = blockSize * sizeof(float4);
@@ -251,9 +255,15 @@ extern "C"
       cudaMemcpyHostToDevice));
 
     *host_pressure = 0.f;
+    *host_Pxy = 0.f;
 
     checkCudaErrors(cudaMemcpyToSymbol(pressure,
       host_pressure,
+      sizeof(float), 0,
+      cudaMemcpyHostToDevice));
+
+    checkCudaErrors(cudaMemcpyToSymbol(Pxy,
+      host_Pxy,
       sizeof(float), 0,
       cudaMemcpyHostToDevice));
 
@@ -271,6 +281,11 @@ extern "C"
 
     checkCudaErrors(cudaMemcpyFromSymbol(host_pressure,
       pressure,
+      sizeof(float), 0,
+      cudaMemcpyDeviceToHost));
+
+    checkCudaErrors(cudaMemcpyFromSymbol(host_Pxy,
+      Pxy,
       sizeof(float), 0,
       cudaMemcpyDeviceToHost));
 
