@@ -239,6 +239,7 @@ void MDSystem::CalculateForces(float *frc)
 
         P = pressure;
         Pshear = pxy;
+        Pshear *= 4. / 2.;
 
         copyArrayFromDevice(frc, d_Force, 0, N);
     }
@@ -335,6 +336,7 @@ void MDSystem::CalculateParameters()
         {
             K += (h_Vel[i]*h_Vel[i] + h_Vel[i+1]*h_Vel[i+1] + h_Vel[i+2]*h_Vel[i+2]) / 2.;
             V += h_Force[i+3];
+            Pshear += -h_Vel[i] * h_Vel[i + 1];
         }
         V *= 4 / 2;
     }
