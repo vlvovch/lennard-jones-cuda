@@ -62,6 +62,9 @@ public:
   // total energy, instant temperature, kinetic energy, potential energy, pressure
   double U, T, K, V, P;
 
+  // Off-diagonal components of the stress tensor (for shear viscosity)
+  double Pshear;
+
   // CUDA initialized
   bool CUDAInit;
 

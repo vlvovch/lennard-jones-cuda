@@ -5,7 +5,7 @@
 using namespace std;
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	RunIsothermParameters params;
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	// Density parameters
 	double rhomin = params.parameters["rho*_min"];
 	double rhomax = params.parameters["rho*_max"];
-	double drho   = params.parameters["drho*"];
+	double drho = params.parameters["drho*"];
 
 
 	// Time parameters
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 			tdrho = rhomin;
 
 		double w = syst.m_config.T0 / ((Pcur - Pprev) / tdrho);
-		double werr = syst.m_config.T0 * tdrho * sqrt(Pcurerr*Pcurerr + Ppreverr * Ppreverr) / std::abs(Pcur - Pprev);
+		double werr = syst.m_config.T0 * tdrho * sqrt(Pcurerr * Pcurerr + Ppreverr * Ppreverr) / std::abs(Pcur - Pprev);
 
 		fout << setw(15) << w << " ";
 		fout << setw(15) << werr << " ";
@@ -162,6 +162,5 @@ int main(int argc, char *argv[])
 	}
 
 
-  return 0;
+	return 0;
 }
- 

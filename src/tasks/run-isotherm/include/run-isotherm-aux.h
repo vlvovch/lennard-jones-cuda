@@ -36,11 +36,11 @@ struct RunIsothermParameters {
     parameters({
       {"N",           400},        // the number of particles
       {"T*",          1.4},        // the temperature of the isotherm
-      {"rho*_min",    0.01},       // the minimum particle density
+      {"rho*_min",    0.60},       // the minimum particle density
       {"rho*_max",    0.60},       // the maximum particle density
       {"drho*",       0.01},       // the step in particle density
       {"teq",         10.},        // the equilibration time time
-      {"tfin",        100.},      // the maximum time per single simulation
+      {"tfin",        5000.},      // the maximum time per single simulation
       {"dt*",         0.004},      // the integration time step
       //{"canonical",   1},          // the ensemble: 0 - microcanonical, 1 - canonical
       {"useCUDA",     1}           // if available, use CUDA GPU
@@ -110,7 +110,7 @@ struct RunIsothermParameters {
     //else
     //  ss << ".ust" << parameters["u*"];
 
-    ss << ".rhost" << parameters["rho*"];
+    //ss << ".rhost" << parameters["rho*"];
 
     ret += "." + ss.str();
 

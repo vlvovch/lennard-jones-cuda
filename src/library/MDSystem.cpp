@@ -247,6 +247,7 @@ void MDSystem::CalculateForces(float *frc)
         double r2,r6;
         V = 0.;
         P = 0.;
+        Pshear = 0.;
         for(int i=0;i<4*N;i+=4)
         {
             frc[i] = 0.;
@@ -286,6 +287,7 @@ void MDSystem::CalculateForces(float *frc)
                       frc[i + 2] += fijz;
                       V += (1*r6*r6 - 1*r6);// - Vcut;
                       P += rx * fijx + ry * fijy + rz * fijz;
+                      Pshear += -rx * fijy;
                   }
                 }
             }
@@ -295,6 +297,7 @@ void MDSystem::CalculateForces(float *frc)
         }
         P *= 4. / 3. / 2.;
         V *= 4. / 2.;
+        Pshear *= 4. / 2.;
     }
 }
 
@@ -320,6 +323,7 @@ void MDSystem::CalculateParameters()
         for(int i=0;i<4*N;i+=4)
         {
             K += (h_Vel[i]*h_Vel[i] + h_Vel[i+1]*h_Vel[i+1] + h_Vel[i+2]*h_Vel[i+2]) / 2.;
+            Pshear += -h_Vel[i] * h_Vel[i+1];
         }
     }
     else
@@ -336,6 +340,8 @@ void MDSystem::CalculateParameters()
     P += m_config.N * T;
     P /= (m_config.N / m_config.rho);
     U = K + V;
+
+    Pshear /= (m_config.N / m_config.rho);
 
     av_iters++;
     av_U_tot += U;
