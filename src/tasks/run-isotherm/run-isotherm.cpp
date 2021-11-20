@@ -74,7 +74,24 @@ int main(int argc, char* argv[])
 	fout << setw(15) << "dw[N]" << " ";
 	fout << endl;
 
+	ofstream foutw(params.output_prefix + string(".omega.dat"));
+	foutw << setw(15) << "rho*" << " ";
+	foutw << setw(15) << "w[N]_dp" << " ";
+	foutw << setw(15) << "dw[N]_dp" << " ";
+	foutw << setw(15) << "w[N]_Z" << " ";
+	foutw << setw(15) << "dw[N]_Z" << " ";
+	foutw << setw(15) << "w[N]_dpmid" << " ";
+	foutw << setw(15) << "dw[N]_dpmid" << " ";
+	foutw << setw(15) << "w[N]_Zmid" << " ";
+	foutw << setw(15) << "dw[N]_Zmid" << " ";
+	foutw << endl;
+
 	double Pprev = 0., Ppreverr = 0.;
+
+	double Pp = 0., P0 = 0., Pm = 0.;
+	double Pperr = 0., P0err = 0., Pmerr = 0.;
+	double Zp = 1., Z0 = 1., Zm = 1.;
+	double Zperr = 0., Z0err = 0., Zmerr = 0.;
 
 	for (double rho = rhomin; rho <= rhomax; rho += drho) {
 		cout << endl;
@@ -146,7 +163,7 @@ int main(int argc, char* argv[])
 
 			uloc.AddObservation(syst.U / syst.m_config.N);
 			Ploc.AddObservation(syst.P);
-			hloc.AddObservation(syst.U * syst.m_config.rho / syst.m_config.N + syst.P);
+			hloc.AddObservation(syst.m_config.rho + syst.U * syst.m_config.rho / syst.m_config.N + syst.P);
 
 			if (t > t_next_eq) {
 				utot.AddObservation(uloc.GetMean());
@@ -205,6 +222,54 @@ int main(int argc, char* argv[])
 			t += dt;
 		}
 
+		{
+			Pp = Ptot.GetMean();
+			Pperr = Ptot.GetMeanError();
+			Zp = Ptot.GetMean() / rho / syst.m_config.T0;
+			Zperr = Ptot.GetMeanError() / rho / syst.m_config.T0;
+
+			if (rho > rhomin) {
+				double w_dpmid = syst.m_config.T0 * 2. * drho / (Pp - Pm);
+				double dw_dpmid = syst.m_config.T0 * 2. * drho / (Pp - Pm) / (Pp - Pm) * sqrt(Pperr * Pperr + Pmerr * Pmerr);
+
+				foutw << setw(15) << w_dpmid << " ";
+				foutw << setw(15) << dw_dpmid << " ";
+
+				double rhomid = rho - drho;
+
+				double w_Zmid = 1. / (Z0 + rhomid * (Zp - Zm) / 2. / drho);
+				double dw_Zmid = w_Zmid * w_Zmid * sqrt(Z0err*Z0err + (rhomid / 2. / drho) * (rhomid / 2. / drho) * (Zperr*Zperr + Zmerr*Zmerr));
+
+				foutw << setw(15) << w_Zmid << " ";
+				foutw << setw(15) << dw_Zmid << " ";
+				foutw << endl;
+			}
+
+			Pm = P0;
+			Pmerr = P0err;
+			P0 = Pp;
+			P0err = Pperr;
+
+			Zm = Z0;
+			Zmerr = Z0err;
+			Z0 = Zp;
+			Z0err = Zperr;
+
+			foutw << setw(15) << rho << " ";
+
+			double w_dp = syst.m_config.T0 * drho / (P0 - Pm);
+			double dw_dp = syst.m_config.T0 * drho / (P0 - Pm) / (P0 - Pm) * sqrt(P0err * P0err + Pmerr * Pmerr);
+			foutw << setw(15) << w_dp << " ";
+			foutw << setw(15) << dw_dp << " ";
+
+			double w_Z = 1. / (Z0 + rho * (Z0 - Zm) / drho);
+			double dw_Z = w_Z * w_Z * sqrt((1. + rho / drho) * (1. + rho / drho) * Z0err * Z0err + (rho / drho) * (rho / drho) * Zmerr * Zmerr);
+
+			foutw << setw(15) << w_Z << " ";
+			foutw << setw(15) << dw_Z << " ";
+			foutw.flush();
+		}
+
 		fout << setw(15) << rho << " ";
 		fout << setw(15) << t - dt << " ";
 		fout << setw(15) << syst.T << " ";
@@ -224,11 +289,14 @@ int main(int argc, char* argv[])
 		if (rho == rhomin)
 			tdrho = rhomin;
 
-		double w = syst.m_config.T0 / ((Pcur - Pprev) / tdrho);
-		double werr = syst.m_config.T0 * tdrho * sqrt(Pcurerr * Pcurerr + Ppreverr * Ppreverr) / (Pcur - Pprev) / (Pcur - Pprev);
+		//double w = syst.m_config.T0 / ((Pcur - Pprev) / tdrho);
+		//double werr = syst.m_config.T0 * tdrho * sqrt(Pcurerr * Pcurerr + Ppreverr * Ppreverr) / (Pcur - Pprev) / (Pcur - Pprev);
+		double w_Z = 1. / (Z0 + rho * (Z0 - Zm) / drho);
+		double dw_Z = w_Z * w_Z * sqrt((1. + rho / drho) * (1. + rho / drho) * Z0err * Z0err + (rho / drho) * (rho / drho) * Zmerr * Zmerr);
 
-		fout << setw(15) << w << " ";
-		fout << setw(15) << werr << " ";
+
+		fout << setw(15) << w_Z << " ";
+		fout << setw(15) << dw_Z << " ";
 
 		Pprev = Pcur;
 		Ppreverr = Pcurerr;
