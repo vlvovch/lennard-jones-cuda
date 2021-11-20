@@ -22,7 +22,7 @@ __device__ float Pxy;
 
 //__device__ float4
 __device__ void
-bodyBodyInteraction(float4 &ai, float4 bi, float4 &bj, int *RDF)
+bodyBodyInteraction(float4 &ai, float4 bi, float4 &bj, int *RDF, float4& aux_calc)
 {
   float3 r;
 
@@ -53,15 +53,20 @@ bodyBodyInteraction(float4 &ai, float4 bi, float4 &bj, int *RDF)
     ai.y += r.y * s;
     ai.z += r.z * s;
     ai.w += invDist6 * invDist6 - invDist6;
+
     bj.w += s * distSqr;
 
-    atomicAdd(&Pxy, -r.x * r.y * s);
+    aux_calc.x += -r.x * r.y * s;
+    //aux_calc.x += -r.y * r.z * s;
+    //aux_calc.x += -r.z * r.x * s;
+
+    //atomicAdd(&Pxy, -r.x * r.y * s);
   }
 }
 
 
 // This is the "tile_calculation" function from the GPUG3 article.
-__device__ float4 tile_force(float4 &myPos, float4 accel, int maxnumb, int *RDF)
+__device__ float4 tile_force(float4 &myPos, float4 accel, int maxnumb, int *RDF, float4& aux_calc)
 {
   extern __shared__ float4 sharedPos[];
   int i;
@@ -69,14 +74,14 @@ __device__ float4 tile_force(float4 &myPos, float4 accel, int maxnumb, int *RDF)
 #pragma unroll 8
   for (i = 0; i < maxnumb; ++i)
   {
-    bodyBodyInteraction(accel, sharedPos[i], myPos, RDF);
+    bodyBodyInteraction(accel, sharedPos[i], myPos, RDF, aux_calc);
   }
 
   return accel;
 }
 
 __device__ float4
-computeBodyAccel(float4 &bodyPos, float4* positions, int numBodies, int maxnumblast, int *RDF)
+computeBodyAccel(float4 &bodyPos, float4* positions, int numBodies, int maxnumblast, int *RDF, float4 &aux_calc)
 {
   extern __shared__ float4 sharedPos[];
 
@@ -93,7 +98,7 @@ computeBodyAccel(float4 &bodyPos, float4* positions, int numBodies, int maxnumbl
     sharedPos[threadIdx.x] = positions[tile * blockDim.x + threadIdx.x];
 
     __syncthreads();
-    frc = tile_force(bodyPos, frc, blockDim.x, RDF);
+    frc = tile_force(bodyPos, frc, blockDim.x, RDF, aux_calc);
     __syncthreads();
   }
 
@@ -102,7 +107,7 @@ computeBodyAccel(float4 &bodyPos, float4* positions, int numBodies, int maxnumbl
 
   __syncthreads();
 
-  frc = tile_force(bodyPos, frc, maxnumblast, RDF);
+  frc = tile_force(bodyPos, frc, maxnumblast, RDF, aux_calc);
   __syncthreads();
 
   // Lennard-Jones factor
@@ -110,6 +115,8 @@ computeBodyAccel(float4 &bodyPos, float4* positions, int numBodies, int maxnumbl
   frc.y *= 4.f;
   frc.z *= 4.f;
   bodyPos.w *= 4.0f / 2.0f / 3.0f;
+
+  aux_calc.x *= 4.0f / 2.0f;
 
   return frc;
 }
@@ -133,11 +140,13 @@ calculateForces(float4* Pos, float4* Force,
   }
 
   float4 pos = Pos[index2];
-  float4 accel = computeBodyAccel(pos, Pos, numBodies, calcmaxnumblast, gmem);
+  float4 aux_calc = { 0.0f, 0.0f, 0.0f, 0.0f };
+  float4 accel = computeBodyAccel(pos, Pos, numBodies, calcmaxnumblast, gmem, aux_calc);
 
   if (index < numBodies) {
     Force[index2] = accel;
     atomicAdd(&pressure, pos.w);
+    atomicAdd(&Pxy, aux_calc.x);
   }
 }
 
