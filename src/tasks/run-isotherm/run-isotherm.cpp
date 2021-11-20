@@ -100,13 +100,13 @@ int main(int argc, char* argv[])
 		int totIters = 0;
 
 		TimeAverage uav, Pav, Nav, Pxyav;
-		int iter_dec_max = 200;
+		int iter_dec_max = 500;
 		int diter_dec = 1;
 		AnalyzeExpDecay Pav_dec(diter_dec, iter_dec_max);
 		AnalyzeExpDecay Pav_dec_alt(diter_dec, iter_dec_max);
 		AnalyzeExpDecay Pxyav_dec(diter_dec, iter_dec_max);
 		AnalyzeExpDecay Pxyav_dec_alt(diter_dec, iter_dec_max);
-		AnalyzeExpDecay Nav_dec(diter_dec, iter_dec_max*10);
+		AnalyzeExpDecay Nav_dec(diter_dec, iter_dec_max*2);
 		std::vector<double> Ps;
 		std::vector<double> Pxys;
 		std::vector<double> Ps_roll(iter_dec_max + 1);
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 				Pxyav_dec_alt.AddSegment(Pxys_roll);
 			}
 			Ps_roll[totIters % iter_dec_max] = syst.P;
-			Ps_roll[totIters % iter_dec_max] = syst.Pshear;
+			Pxys_roll[totIters % iter_dec_max] = syst.Pshear;
 
 			uloc.AddObservation(syst.U / syst.m_config.N);
 			Ploc.AddObservation(syst.P);
