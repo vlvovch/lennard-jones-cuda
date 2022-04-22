@@ -109,11 +109,15 @@ MainWindow::MainWindow(QWidget *parent)
     RBPeriodic = new QRadioButton(tr("Periodic"));
     RBPeriodic->setToolTip(tr("Minimum image convention"));
     RBWalls = new QRadioButton(tr("Hard walls"));
+    RBExpansion = new QRadioButton(tr("Expansion"));
     bndLayout->addWidget(RBPeriodic);
     bndLayout->addWidget(RBWalls);
+    bndLayout->addWidget(RBExpansion);
     BoundaryGroup->setLayout(bndLayout);
     RBPeriodic->setChecked(true);
     connect(RBPeriodic, SIGNAL(toggled(bool)), this, SLOT(updateBoundary()));
+    connect(RBWalls, SIGNAL(toggled(bool)), this, SLOT(updateBoundary()));
+    connect(RBExpansion, SIGNAL(toggled(bool)), this, SLOT(updateBoundary()));
 
     int deviceCount = 0;
     cudaGetDeviceCount(&deviceCount);
@@ -263,7 +267,8 @@ MDSystem::MDSystemConfiguration MainWindow::getConfig()
     config.canonical = RBCanon->isChecked();
     config.useCUDA = RBCUDA->isChecked();
     config.CUDABlockSize = 256;
-    config.boundaryConditions = !RBPeriodic->isChecked();
+    //config.boundaryConditions = !RBPeriodic->isChecked();
+    config.boundaryConditions = getBoundaryCondition();
 
     return config;
 }
@@ -326,7 +331,7 @@ void MainWindow::updateEnsemble()
 
 void MainWindow::updateBoundary()
 {
-  glWidget->systGL->setPeriodicBoundaryCondition(RBPeriodic->isChecked());
+  glWidget->systGL->setBoundaryCondition(getBoundaryCondition());
 }
 
 void MainWindow::updateHardwareMode()
@@ -400,6 +405,7 @@ void MainWindow::cont()
     glWidget->anim->start(10);
     RBPeriodic->setEnabled(false);
     RBWalls->setEnabled(false);
+    RBExpansion->setEnabled(true);
 }
 
 void MainWindow::stop()
@@ -447,4 +453,13 @@ void MainWindow::reshuffleLayout(bool hidePlots) {
     plotsLayout->addWidget(glWidget, 0, 0);
     lhsLayout->insertWidget(0, plotsWidget);
   }
+}
+
+int MainWindow::getBoundaryCondition()
+{
+  if (RBPeriodic->isChecked())
+    return 0;
+  if (RBWalls->isChecked())
+    return 1;
+  return 2;
 }

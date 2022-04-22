@@ -44,6 +44,7 @@ public:
     void setHardwareMode(bool useCUDA) { m_system->setHardwareMode(useCUDA); }
     void setCanonical(bool canonical) { m_system->setCanonical(canonical); }
     void setPeriodicBoundaryCondition(bool periodic) { m_system->setPeriodicBoundaryCondition(periodic); }
+    void setBoundaryCondition(int cond) { m_system->setBoundaryCondition(cond); }
 };
 
 #endif // MDSYSTEMGL_H
