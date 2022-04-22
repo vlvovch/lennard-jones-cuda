@@ -87,6 +87,9 @@ void MDSystem::Reinitialize(const MDSystem::MDSystemConfiguration &config)
 
     NdNdr2 = std::vector<int>(256, 0);
 
+    rdf_dr2 *= 0.1;
+    NdNdr2 = std::vector<int>(2560, 0);
+
     ReallocateMemory();
 
     CalculateForces();

@@ -105,18 +105,21 @@ void MDSystemGL::draw()
   glColor3ub(255, 0, 0);
   glEnable(GL_LINE_STIPPLE);
   glBegin(GL_LINES);
-  for (double dir = -0.5; dir < 0.6; dir += 1.) {
-    glVertex3f(0., 0., 75. + dir * 150. * fraction);
-    glVertex3f(150., 0., 75. + dir * 150. * fraction);
+  for (double dir = 0.; dir < 1.6; dir += 1.) {
+  //for (double dir = -0.5; dir < 0.6; dir += 1.) {
+    double tz = 75. + dir * 150. * fraction;
+    tz = 0. + dir * 150. * fraction;
+    glVertex3f(0., 0., tz);
+    glVertex3f(150., 0., tz);
 
-    glVertex3f(0., 150., 75. + dir * 150. * fraction);
-    glVertex3f(150., 150., 75. + dir * 150. * fraction);
+    glVertex3f(0., 150., tz);
+    glVertex3f(150., 150., tz);
 
-    glVertex3f(0., 0., 75. + dir * 150. * fraction);
-    glVertex3f(0., 150., 75. + dir * 150. * fraction);
+    glVertex3f(0., 0., tz);
+    glVertex3f(0., 150., tz);
 
-    glVertex3f(150., 0., 75. + dir * 150. * fraction);
-    glVertex3f(150., 150., 75. + dir * 150. * fraction);
+    glVertex3f(150., 0., tz);
+    glVertex3f(150., 150., tz);
   }
   glEnd();
   glPopAttrib();
@@ -135,7 +138,8 @@ void MDSystemGL::draw()
     for (int i = 0; i < 4 * m_system->m_config.N; i += 4)
     {
       double z = m_system->h_Pos[i + 2];
-      if (std::abs(z - 0.5 * m_system->L) < 0.5 * fraction * m_system->L) {
+      //if (std::abs(z - 0.5 * m_system->L) < 0.5 * fraction * m_system->L) {
+      if (z < fraction * m_system->L) {
         //glColor3ub(0, 0, 255);
         glColor3ub(255, 0, 0);
       }

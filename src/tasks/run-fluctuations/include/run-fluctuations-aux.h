@@ -34,8 +34,10 @@ struct RunFluctuationsParameters {
       {"N",           400},        // the number of particles
       {"T*",          1.4},        // the temperature, ignored if the microcanonical ensemble is used
       //{"u*",          1.4},        // the energy per particle, ignored if the canonical ensemble is used
-      {"u*",          1.708},        // the energy per particle, ignored if the canonical ensemble is used
-      {"rho*",        0.05},       // the particle density
+      //{"u*",          1.33888},        // the energy per particle, ignored if the canonical ensemble is used
+      {"u*",          -1.90235},        // the energy per particle, ignored if the canonical ensemble is used
+      //{"rho*",        0.10},       // the particle density
+      {"rho*",        0.60},       // the particle density
       {"teq",         50.},        // the equilibration time time, if negative, the calculation goes on indefinitely until stopped
       {"tfin",        1000.},      // the maximum time, 
       {"dt*",         0.004},      // the integration time step
