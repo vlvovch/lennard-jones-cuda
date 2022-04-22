@@ -17,7 +17,7 @@ The code is separated into three parts:
 - Adjust the number of particles, temperature and density, and the time step
 - Switch between CPU or GPU (CUDA) based calculation
 - Velocity Verlet integrator
-- Microcanonical (*EVN*) or canonical (*TVN*, Andersen-like thermostat) ensemble
+- Microcanonical (*EVN*) or canonical-like (*TVN*, constant kinetic temperature dynamics) ensemble
 - Periodic or hard-wall boundary conditions
 - Real-time visualization of the system motion (in OpenGL)
 - Calculation and visualization of the [radial distribution function](https://en.wikipedia.org/wiki/Radial_distribution_function) and the velocity distribution
