@@ -396,6 +396,12 @@ void MDSystem::RenormalizeVelocitiesToEnergy(double ust)
 
 void MDSystem::ApplyBoundaryConditions()
 {
+  
+  if (m_config.boundaryConditions == 2) {
+    // No boundary conditions (expansion)
+    return;
+  }
+  
   if (m_config.boundaryConditions == 0) {
     for (int i = 0; i < 4 * m_config.N; i += 4)
     {

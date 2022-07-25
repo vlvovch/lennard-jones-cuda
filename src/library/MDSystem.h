@@ -21,7 +21,7 @@ public:
     bool canonical;
 
 
-    // Boundary conditions. 0 - periodic, 1 - hard wall
+    // Boundary conditions. 0 - periodic, 1 - hard wall, 2 - none (expansion)
     int boundaryConditions;
 
     // Use CUDA GPU (if available)
@@ -160,6 +160,7 @@ public:
   void setHardwareMode(bool useCUDA);
   void setCanonical(bool canonical) { m_config.canonical = canonical; }
   void setPeriodicBoundaryCondition(bool periodic) { m_config.boundaryConditions = !periodic; }
+  void setBoundaryCondition(int cond) { m_config.boundaryConditions = cond; }
 };
 
 #endif

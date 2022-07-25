@@ -29,7 +29,7 @@ private:
     QDoubleSpinBox *spinrho, *spinT, *spindtau;
 
     QRadioButton *RBMicro, *RBCanon;
-    QRadioButton *RBPeriodic, *RBWalls;
+    QRadioButton* RBPeriodic, *RBWalls, *RBExpansion;
     QRadioButton *RBVerlet;
     QRadioButton *RBCPU, *RBCUDA;
     QRadioButton *RBSpheres, *RBPoints;
@@ -55,6 +55,8 @@ private slots:
     void updateBoundary();
     void updateHardwareMode();
     void reshuffleLayout(bool hidePlots);
+
+    int getBoundaryCondition();
 };
 
 #endif // MAINWINDOW_H
