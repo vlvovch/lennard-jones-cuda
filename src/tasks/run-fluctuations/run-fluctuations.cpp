@@ -1,6 +1,8 @@
 #include "include/run-fluctuations-aux.h"
 #include "NumberStatistics.h"
+#ifdef USE_CUDA_TOOLKIT
 #include "cuda_runtime.h"
+#endif
 
 using namespace std;
 
@@ -18,7 +20,9 @@ int main(int argc, char *argv[])
 	// check CUDA
 	{
 		int deviceCount = 0;
+#ifdef USE_CUDA_TOOLKIT
 		cudaGetDeviceCount(&deviceCount);
+#endif
 
 		if (deviceCount == 0 && lround(params.parameters["useCUDA"])) {
 			std::cout << "Could not find a CUDA device! Calculations will be performed on CPU\n";

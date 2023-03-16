@@ -1,7 +1,7 @@
 #include <QtGui>
 #include "mainwindow.h"
 
-#ifdef DUSE_CUDA_TOOLKIT
+#ifdef USE_CUDA_TOOLKIT
 #include "cuda_runtime.h"
 #endif
 
@@ -123,7 +123,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(RBExpansion, SIGNAL(toggled(bool)), this, SLOT(updateBoundary()));
 
     int deviceCount = 0;
-#ifdef DUSE_CUDA_TOOLKIT
+#ifdef USE_CUDA_TOOLKIT
     cudaGetDeviceCount(&deviceCount);
 #endif
     printf("Number of CUDA-supported devices: %d\n", deviceCount);

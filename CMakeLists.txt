@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 project(LennardJonesCUDA LANGUAGES CXX)
 
 
 include(CheckLanguage)
 check_language(CUDA)
-
 
 
 set (CMAKE_CXX_STANDARD 11)

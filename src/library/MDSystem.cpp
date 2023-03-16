@@ -6,7 +6,7 @@
 #include <iostream>
 #define PI 3.141592653589793238462643
 
-#ifdef DUSE_CUDA_TOOLKIT
+#ifdef USE_CUDA_TOOLKIT
 extern "C"
 {
     //void checkCUDA();

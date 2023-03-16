@@ -43,7 +43,7 @@ include_directories (
         )
 
 if(CMAKE_CUDA_COMPILER)
-    include_directories ("${CUDA_INCLUDE_DIRS}")
+    include_directories ("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
 endif()
 
 add_executable(QtLennardJones ${SRCS_QtLennardJones} qttficon.rc)
@@ -51,6 +51,7 @@ add_executable(QtLennardJones ${SRCS_QtLennardJones} qttficon.rc)
 set_target_properties(QtLennardJones PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 #set_target_properties(QtLennardJones PROPERTIES POSITION_INDEPENDENT_CODE ON)
 #set_target_properties(QtLennardJones PROPERTIES CUDA_RESOLVE_DEVICE_SYMBOLS ON)
+set_property(TARGET QtLennardJones PROPERTY CUDA_ARCHITECTURES OFF)
 target_link_libraries(QtLennardJones PUBLIC mdsystem
 Qt5::Core Qt5::Widgets Qt5::PrintSupport Qt5::OpenGL Qt5::OpenGLExtensions
 ${OPENGL_gl_LIBRARY} )

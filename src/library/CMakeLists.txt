@@ -28,6 +28,7 @@ if(CMAKE_CUDA_COMPILER)
     set_target_properties(mdsystem
             PROPERTIES  CUDA_RESOLVE_DEVICE_SYMBOLS ON
             CUDA_SEPARABLE_COMPILATION OFF
+            CUDA_ARCHITECTURES OFF
             )
 
 endif(CMAKE_CUDA_COMPILER)
