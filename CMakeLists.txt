@@ -1,7 +1,11 @@
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(LennardJonesCUDA LANGUAGES CXX CUDA)
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+project(LennardJonesCUDA LANGUAGES CXX)
 
-find_package(CUDA REQUIRED)
+
+include(CheckLanguage)
+check_language(CUDA)
+
+
 
 set (CMAKE_CXX_STANDARD 11)
 #
@@ -20,21 +24,29 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
              "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-#if(NOT CUDA_TARGET_ARCH)
-#   set(CUDA_TARGET_ARCH "-arch=sm_30" CACHE STRING
-#      "CUDA compute capability target. Default is -arch=sm_30. Other option: -gencode arch=compute_XX,code=sm_XX"
-#      FORCE)
-#endif(NOT CUDA_TARGET_ARCH)
 
-#set(CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS} ${CUDA_TARGET_ARCH})
+if(CMAKE_CUDA_COMPILER)
+   enable_language(CUDA)
 
-if(NOT CUDA_SAMPLES_DIR)
-file(DOWNLOAD https://raw.githubusercontent.com/NVIDIA/cuda-samples/master/Common/helper_cuda.h
-        ${PROJECT_BINARY_DIR}/thirdparty/CUDA_SAMPLES/helper_cuda.h)
+   add_definitions(-DUSE_CUDA_TOOLKIT)
 
-file(DOWNLOAD https://raw.githubusercontent.com/NVIDIA/cuda-samples/master/Common/helper_string.h
-        ${PROJECT_BINARY_DIR}/thirdparty/CUDA_SAMPLES/helper_string.h)
-endif()
+   #if(NOT CUDA_TARGET_ARCH)
+   #   set(CUDA_TARGET_ARCH "-arch=sm_30" CACHE STRING
+   #      "CUDA compute capability target. Default is -arch=sm_30. Other option: -gencode arch=compute_XX,code=sm_XX"
+   #      FORCE)
+   #endif(NOT CUDA_TARGET_ARCH)
+
+   #set(CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS} ${CUDA_TARGET_ARCH})
+
+   if(NOT CUDA_SAMPLES_DIR)
+   file(DOWNLOAD https://raw.githubusercontent.com/NVIDIA/cuda-samples/master/Common/helper_cuda.h
+           ${PROJECT_BINARY_DIR}/thirdparty/CUDA_SAMPLES/helper_cuda.h)
+
+   file(DOWNLOAD https://raw.githubusercontent.com/NVIDIA/cuda-samples/master/Common/helper_string.h
+           ${PROJECT_BINARY_DIR}/thirdparty/CUDA_SAMPLES/helper_string.h)
+   endif()
+
+endif(CMAKE_CUDA_COMPILER)
 
 add_subdirectory(src/library)
 add_subdirectory(src/gui)

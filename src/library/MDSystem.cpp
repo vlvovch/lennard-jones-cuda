@@ -6,6 +6,7 @@
 #include <iostream>
 #define PI 3.141592653589793238462643
 
+#ifdef DUSE_CUDA_TOOLKIT
 extern "C"
 {
     //void checkCUDA();
@@ -22,7 +23,15 @@ extern "C"
     void threadSync();
     void threadExit();
 }
-
+#else
+void allocateArray(float** dest, int number) { }
+void deleteArray(float* arr) { }
+void calculateNForces(float* Pos, float* Force, float *host_pressure,
+      int numBodies, float host_L, int Lperiodic, int* host_RDF, float host_dr2, int p, int q) { }
+void copyArrayFromDevice(float* host, const float* device, unsigned int pbo, int numBodies) { }
+void copyArrayToDevice(float* device, const float* host, int numBodies) { }
+void threadExit() { }
+#endif
 
 double MDSystem::MaxwellDistributionGenerator::prob(double alpha)
 {

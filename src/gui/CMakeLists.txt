@@ -40,7 +40,11 @@ ${PROJECT_SOURCE_DIR}/thirdparty/QCustomPlot/qcustomplot.cpp
 include_directories (
         "${PROJECT_SOURCE_DIR}/src/library"
         "${PROJECT_SOURCE_DIR}/thirdparty/QCustomPlot"
-        "${CUDA_INCLUDE_DIRS}")
+        )
+
+if(CMAKE_CUDA_COMPILER)
+    include_directories ("${CUDA_INCLUDE_DIRS}")
+endif()
 
 add_executable(QtLennardJones ${SRCS_QtLennardJones} qttficon.rc)
 
@@ -51,7 +55,7 @@ target_link_libraries(QtLennardJones PUBLIC mdsystem
 Qt5::Core Qt5::Widgets Qt5::PrintSupport Qt5::OpenGL Qt5::OpenGLExtensions
 ${OPENGL_gl_LIBRARY} )
 
-if(APPLE)
+if(APPLE AND CMAKE_CUDA_COMPILER)
     # We need to add the default path to the driver (libcuda.dylib) as an rpath,
     # so that the static cuda runtime can find it at runtime.
     set_property(TARGET QtLennardJones PROPERTY BUILD_RPATH ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
