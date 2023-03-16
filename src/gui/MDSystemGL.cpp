@@ -116,7 +116,9 @@ void MDSystemGL::draw()
         glDisable(GL_LIGHTING);
         glEnable(GL_POINT_SPRITE_ARB);
         glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+#ifdef GL_VERTEX_PROGRAM_POINT_SIZE_NV
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
+#endif
         glPointSize(2.0f);
         //glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         glEnable(GL_BLEND);

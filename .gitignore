@@ -25,7 +25,6 @@ out/*
 
 # CLion
 .idea/*
-.vscode/*
 
 # Doxygen
 docs/doxygen/html*
