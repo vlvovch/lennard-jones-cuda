@@ -28,12 +28,16 @@ The code is separated into three parts:
 
 ## Prerequisites
 
-- [CMake](https://cmake.org/) v3.10+
+- [CMake](https://cmake.org/) v3.18+
+
+For using CUDA-enabled GPUs
 - [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit), tested on v10.2+
-- [Qt5](https://doc.qt.io/qt-5/) framework and **OpenGL** support to run the GUI
 - CUDA-enabled GPU (otherwise only the CPU simulation can be used) with compute capability 3.0+
+
+For the graphical user interface
+- [Qt5](https://doc.qt.io/qt-5/) framework and **OpenGL** support to run the GUI
   
-The code is cross-platform and based on CMake. It has been tested on Microsoft Windows 10 (using Visual Studio or CLion IDE) and Ubuntu 20.04 (via the command line)
+The code is cross-platform and based on CMake. It has been tested on Microsoft Windows 10 (using Visual Studio or CLion IDE), Ubuntu 20.04 (via the command line), Mac OS 13.2 Ventura (both CLion IDE or command line)
 
 ## Usage
 
@@ -68,4 +72,4 @@ make
 - [**QCustomPlot**](https://www.qcustomplot.com/) Qt C++ widget for plotting and data visualization by Emanuel Eichhammer ([GPL](https://www.gnu.org/licenses/gpl.html))
 
 
-*Copyright (C) 2013-2021  Volodymyr Vovchenko*
+*Copyright (C) 2013-2023  Volodymyr Vovchenko*
