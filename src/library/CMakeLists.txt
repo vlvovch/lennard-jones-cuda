@@ -4,6 +4,8 @@ MDSystem.h
 MDSystem.cpp
 splinefunction.h
 splinefunction.cpp
+Utility.h
+Utility.cpp
 )
 
 if(CMAKE_CUDA_COMPILER)

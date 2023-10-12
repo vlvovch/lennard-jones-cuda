@@ -1,0 +1,33 @@
+# Sample input file for Lennard-Jones molecular dynamics simulation in the canonical ensemble
+# Format: <parameter-name> <parameter-value>
+# Everything after # is ignored
+
+# The number of particles
+N 400
+
+# The temperature, ignored if the microcanonical ensemble is used
+# T* 1.4
+
+# The energy per particle, ignored if the canonical ensemble is used
+u* -0.0458
+
+# The particle density
+rho* 0.30
+
+# The equilibration time, if negative, the calculation goes on indefinitely until stopped
+teq 50.
+
+# The maximum time
+tfin -1.
+
+# The integration time step
+dt* 0.004
+
+# The ensemble: 0 - microcanonical, 1 - canonical
+canonical 0
+
+# The spacing in the values of the considered subvolume fractions
+subvolume_spacing 0.01
+
+# If available, use CUDA GPU
+useCUDA 1

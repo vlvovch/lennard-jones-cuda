@@ -26,6 +26,7 @@ endif()
 
 if(CMAKE_CUDA_COMPILER)
    enable_language(CUDA)
+   include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
 
    add_definitions(-DUSE_CUDA_TOOLKIT)
 

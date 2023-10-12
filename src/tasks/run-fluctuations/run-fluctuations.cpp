@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	double Tst = params.parameters["T*"];
 	double ust = params.parameters["u*"];
 
-    vector<double> fracs;
+  vector<double> fracs;
 	{
 		double dfr = params.parameters["subvolume_spacing"];
 		for (double tfr = dfr; tfr <= 1.; tfr += dfr)
