@@ -2,6 +2,9 @@
 # Format: <parameter-name> <parameter-value>
 # Everything after # is ignored
 
+# The number of events
+nevents 1000
+
 # The number of particles
 N 400
 
