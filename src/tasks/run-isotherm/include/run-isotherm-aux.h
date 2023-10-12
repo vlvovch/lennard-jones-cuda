@@ -11,6 +11,7 @@
 #include <sstream>
 #include <map>
 #include <ctime>
+#include <limits> // std::numeric_limits
 
 
 #ifdef __linux__
