@@ -58,6 +58,9 @@ int main(int argc, char *argv[])
 
 	MDSystem syst(config);
 
+  // Do not compute RDF (~%20 speed-up)
+  syst.m_computeRDF = false;
+
   double tbeg = LennardJones::get_wall_time();
 
   // Loop over the events

@@ -27,7 +27,7 @@ extern "C"
 void allocateArray(float** dest, int number) { }
 void deleteArray(float* arr) { }
 void calculateNForces(float* Pos, float* Force, float *host_pressure,
-      int numBodies, float host_L, int Lperiodic, int* host_RDF, float host_dr2, int p, int q) { }
+      int numBodies, float host_L, int Lperiodic, int* host_RDF, float host_dr2, int p, int computeRDF) { }
 void copyArrayFromDevice(float* host, const float* device, unsigned int pbo, int numBodies) { }
 void copyArrayToDevice(float* device, const float* host, int numBodies) { }
 void threadExit() { }
@@ -59,6 +59,8 @@ MDSystem::MDSystem(const MDSystem::MDSystemConfiguration& config)
     h_Pos = NULL;
     h_Vel = NULL;
     h_Force = NULL;
+
+    m_computeRDF = true;
 
     Reinitialize(config);
 }
@@ -243,7 +245,7 @@ void MDSystem::CalculateForces(float *frc)
 
         float pressure = 0.f;
         calculateNForces(d_Pos, d_Force, &pressure,
-          N, static_cast<float>(L), !m_config.boundaryConditions, &NdNdr2[0], rdf_dr2, m_config.CUDABlockSize, 1);
+          N, static_cast<float>(L), !m_config.boundaryConditions, &NdNdr2[0], rdf_dr2, m_config.CUDABlockSize, m_computeRDF);
 
         P = pressure;
 
@@ -251,7 +253,8 @@ void MDSystem::CalculateForces(float *frc)
     }
     else
     {
-        std::fill(NdNdr2.begin(), NdNdr2.end(), 0);
+        if (m_computeRDF)
+          std::fill(NdNdr2.begin(), NdNdr2.end(), 0);
       
         double r2,r6;
         V = 0.;
@@ -278,7 +281,7 @@ void MDSystem::CalculateForces(float *frc)
 
                   r2 = rx * rx + ry * ry + rz * rz;
 
-                  {
+                  if (m_computeRDF) {
                     int indrdf = floor(r2 / rdf_dr2);
                     if (indrdf < NdNdr2.size())
                       NdNdr2[indrdf]++;

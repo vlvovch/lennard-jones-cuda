@@ -36,10 +36,11 @@ bodyBodyInteraction(float4 &ai, float4 bi, float4 &bj, int *RDF)
 
   if (distSqr > 1e-6f)
   {
-    int indr2 = min(__float2int_rd(distSqr / dr2), 255);
 
-    if (RDF != NULL)
+    if (RDF != NULL) {
+      int indr2 = min(__float2int_rd(distSqr / dr2), 255);
       atomicAdd(&RDF[indr2], 1);
+    }
 
     float invDist2 = 1.0f / distSqr;
     float invDist6 = invDist2 * invDist2 * invDist2;
@@ -116,11 +117,14 @@ calculateForces(float4* Pos, float4* Force,
 {
   int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  int g = blockIdx.x;
-  int* gmem = RDF + g * 256;
-  for (int i = threadIdx.x; i < 256; i += blockDim.x)
-    gmem[i] = 0;
-  __syncthreads();
+  int *gmem = NULL;
+  if (RDF != NULL) {
+    int g = blockIdx.x;
+    gmem = RDF + g * 256;
+    for (int i = threadIdx.x; i < 256; i += blockDim.x)
+      gmem[i] = 0;
+    __syncthreads();
+  }
 
   int index2 = index;
   if (index2 >= numBodies) {
@@ -229,7 +233,7 @@ extern "C"
 
   void
     calculateNForces(float* Pos, float* Force, float* host_pressure,
-      int numBodies, float host_L, int Lperiodic, int *host_RDF, float host_dr2, int blockSize, int q)
+      int numBodies, float host_L, int Lperiodic, int *host_RDF, float host_dr2, int blockSize, int computeRDF)
   {
     int sharedMemSize = blockSize * sizeof(float4);
     int gridSize = (int)((numBodies + blockSize - 1) / blockSize);
@@ -263,7 +267,10 @@ extern "C"
       cudaMemcpyHostToDevice));
 
     int* RDFall;
-    allocateIntArray(&RDFall, 256 * gridSize);
+    if (computeRDF)
+      allocateIntArray(&RDFall, 256 * gridSize);
+    else
+      RDFall = NULL;
 
     calculateForces << < dimGrid, dimBlock, sharedMemSize >> >
       ((float4*)Pos, (float4*)Force,
@@ -274,17 +281,19 @@ extern "C"
       sizeof(float), 0,
       cudaMemcpyDeviceToHost));
 
-    int* RDFtot;
-    allocateIntArray(&RDFtot, 256);
+    if (computeRDF) {
+      int *RDFtot;
+      allocateIntArray(&RDFtot, 256);
 
-    RDFmerger << <   dimGrid, dimBlock, sharedMemSize >> >
+      RDFmerger << < dimGrid, dimBlock, sharedMemSize >> >
       (RDFall, gridSize, RDFtot);
 
-    checkCudaErrors(cudaMemcpy(host_RDF, RDFtot, 256 * sizeof(int),
-      cudaMemcpyDeviceToHost));
+      checkCudaErrors(cudaMemcpy(host_RDF, RDFtot, 256 * sizeof(int),
+                                 cudaMemcpyDeviceToHost));
 
-    deleteIntArray(RDFall);
-    deleteIntArray(RDFtot);
+      deleteIntArray(RDFall);
+      deleteIntArray(RDFtot);
+    }
 
     // check if kernel invocation generated an error
     getLastCudaError("Kernel execution failed");

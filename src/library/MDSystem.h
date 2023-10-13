@@ -98,6 +98,9 @@ public:
   double av_U_tot, av_T_tot, av_p_tot;
   int av_iters;
 
+  // Whether to compute radial distribution function on the fly
+  bool m_computeRDF;
+
   // Random number generator
   MTRand rangen;
 public:
