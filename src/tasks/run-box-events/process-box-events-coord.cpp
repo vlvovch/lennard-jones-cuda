@@ -28,9 +28,11 @@ int main(int argc, char *argv[]) {
     dalpha = atof(argv[2]);
   }
 
-  Nalphas = 1. / dalpha + 1;
-  if (Nalphas * dalpha > 1.)
+  Nalphas = round(1. / dalpha) + 1;
+  if ((Nalphas-1) * dalpha > 1.)
     Nalphas--;
+
+  cout << Nalphas << endl;
 
   vector<NumberStatistics> stats(Nalphas);
 
@@ -97,7 +99,7 @@ int main(int argc, char *argv[]) {
         fin >> x >> y >> z >> vx >> vy >> vz;
 
         // Get the bin and count particle
-        int indz = static_cast<int>((z/L) / dalpha);
+        int indz = static_cast<int>((z/L) / dalpha) + 1;
         if (indz < Nalphas)
           cnts[indz]++;
       }
