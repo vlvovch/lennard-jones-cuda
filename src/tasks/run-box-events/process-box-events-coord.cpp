@@ -95,7 +95,6 @@ int main(int argc, char *argv[]) {
       double x,y,z,vx,vy,vz;
       for (int iN = 0; iN < N; iN++) {
         fin >> x >> y >> z >> vx >> vy >> vz;
-        cout << iN << " " << x << endl;
 
         // Get the bin and count particle
         int indz = static_cast<int>((z/L) / dalpha);
