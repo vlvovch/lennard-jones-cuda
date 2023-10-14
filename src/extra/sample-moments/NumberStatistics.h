@@ -472,8 +472,9 @@ namespace SampleMoments {
       if (q == 1 && use_central_moments)
         return GetScaledCumulantError(r);
 
-      if (r == 1 && use_central_moments)
-        return 1. / GetScaledCumulantError(q);
+      if (r == 1 && use_central_moments) {
+        return GetCumulantRatio(r, q) * GetCumulantRatio(r, q) * GetScaledCumulantError(q);
+      }
 
       double numerator = CalculateCumulantFromMoments(r, use_central_moments);
       double denominator = CalculateCumulantFromMoments(q, use_central_moments);
