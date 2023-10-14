@@ -53,7 +53,8 @@ int main(int argc, char *argv[]) {
       assert(in1 == "Event" && in2 == "#");
       nevents++;
 
-      cout << "Reading event #" << nevents << endl;
+      if (nevents % 100 == 0
+        cout << "Reading event #" << nevents << endl;
 
       fin >> in1 >> in2 >> in_int;
       assert(in1 == "N" && in2 == "=");
