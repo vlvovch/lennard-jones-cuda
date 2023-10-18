@@ -34,16 +34,17 @@ struct RunBoxEventsParameters {
   RunBoxEventsParameters(const std::string& input_file = "") :
     output_prefix("run"),
     parameters({
-      {"nevents",    1000},        // the number of events
-      {"N",           400},        // the number of particles
-      {"T*",          1.4},        // the temperature, ignored if the microcanonical ensemble is used
-      {"u*",          -0.0458},    // the energy per particle, ignored if the canonical ensemble is used
-      {"rho*",        0.30},       // the particle density
-      {"dt_out",      2.},         // the output interval time
-      {"tfin",        50.},        // the maximum time per single simulation
-      {"dt*",         0.004},      // the integration time step
-      {"canonical",   0},          // the ensemble: 0 - microcanonical, 1 - canonical
-      {"useCUDA",     1}           // if available, use CUDA GPU
+      {"nevents",     1000},        // the number of events
+      {"N",            400},        // the number of particles
+      {"T*",           1.4},        // the temperature, ignored if the microcanonical ensemble is used
+      {"u*",       -0.0458},        // the energy per particle, ignored if the canonical ensemble is used
+      {"rho*",        0.30},        // the particle density
+      {"dt_out",        2.},        // the output interval time
+      {"tfin",         50.},        // the maximum time per single simulation
+      {"dt*",        0.004},        // the integration time step
+      {"canonical",      0},        // the ensemble: 0 - microcanonical, 1 - canonical
+      {"randomize_coord",1},        // initial coordinates: 0 - cubic lattice, 1 - random without overlap
+      {"useCUDA",        1}         // if available, use CUDA GPU
       })
   {
     if (input_file != "")

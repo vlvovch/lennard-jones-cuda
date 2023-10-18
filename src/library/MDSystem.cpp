@@ -62,6 +62,8 @@ MDSystem::MDSystem(const MDSystem::MDSystemConfiguration& config)
 
     m_computeRDF = true;
 
+    m_randomize_initial_coordinates = false;
+
     Reinitialize(config);
 }
 
@@ -164,10 +166,40 @@ void MDSystem::SampleInitialConditions()
     int iy = (iN / Nsingle) % Nsingle;
     int iz = iN / (Nsingle * Nsingle);
 
-    h_Pos[i] = (ix + 0.5) * dL;
-    h_Pos[i + 1] = (iy + 0.5) * dL;
-    h_Pos[i + 2] = (iz + 0.5) * dL;
-    h_Pos[i + 3] = L / 150.f;
+    if (!m_randomize_initial_coordinates) {
+      h_Pos[i] = (ix + 0.5) * dL;
+      h_Pos[i + 1] = (iy + 0.5) * dL;
+      h_Pos[i + 2] = (iz + 0.5) * dL;
+      h_Pos[i + 3] = L / 150.f;
+    } else {
+      while (true) {
+        h_Pos[i] = rangen.rand() * L;
+        h_Pos[i + 1] = rangen.rand() * L;
+        h_Pos[i + 2] = rangen.rand() * L;
+        h_Pos[i + 3] = L / 150.f;
+
+        // Check overlap with previously sampled particles
+        bool fl_overlap = false;
+        for(int jj = 0; jj < ii; jj++) {
+          int j = indis[jj];
+          double rx = h_Pos[i] - h_Pos[j];
+          double ry = h_Pos[i + 1] - h_Pos[j + 1];
+          double rz = h_Pos[i + 2] - h_Pos[j + 2];
+          if (m_config.boundaryConditions == 0) {
+            rx = rx - L * fast_round(rx / L);
+            ry = ry - L * fast_round(ry / L);
+            rz = rz - L * fast_round(rz / L);
+          }
+          double dr2 = rx * rx + ry * ry + rz * rz;
+          if (dr2 < 0.9 * 0.9) {
+            fl_overlap = true;
+            break;
+          }
+        }
+        if (!fl_overlap)
+          break;
+      }
+    }
     
 
     double tmpv, tmpvcth, tmpvph;

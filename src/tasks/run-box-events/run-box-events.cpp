@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
 
   // Do not compute RDF (~%20 speed-up)
   syst.m_computeRDF = false;
+  syst.m_randomize_initial_coordinates = lround(params.parameters["randomize_coord"]);
 
   double tbeg = LennardJones::get_wall_time();
 

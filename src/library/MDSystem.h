@@ -82,6 +82,9 @@ public:
   // Side length
   double L;
 
+  // Whether to randomize initial coordinates
+  bool m_randomize_initial_coordinates;
+
   // Velocity distribution
   SplineFunction curvelo;
   int veloIters;
