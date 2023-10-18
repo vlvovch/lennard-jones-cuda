@@ -62,6 +62,9 @@ int main(int argc, char *argv[])
   syst.m_computeRDF = false;
   syst.m_randomize_initial_coordinates = lround(params.parameters["randomize_coord"]);
 
+  // Output filenames for different times
+  ofstream fout_filenames(params.output_prefix + ".filenames" + ".dat");
+
   double tbeg = LennardJones::get_wall_time();
 
   // Loop over the events
@@ -99,6 +102,10 @@ int main(int argc, char *argv[])
                                            n_event + 1);
         tout_next += dt_out;
 
+        if (n_event == 0) {
+          fout_filenames << setw(tabsize) << t << "   " << params.output_prefix + ".t" + to_string(t) + ".dat" << endl;
+        }
+
 //        cout << setw(tabsize) << t << " " << setw(tabsize) << syst.U / syst.m_config.N << " " << setw(tabsize) << syst.T
 //             << endl;
 //        cout.flush();
@@ -114,6 +121,10 @@ int main(int argc, char *argv[])
     double tendevt = LennardJones::get_wall_time();
     cout << "\r" << "Event # " << n_event + 1 << " finished in " << tendevt - tbegevt << " seconds" << endl;
     cout.flush();
+
+    if (n_event == 0) {
+      fout_filenames.close();
+    }
   }
 
   double tend = LennardJones::get_wall_time();
