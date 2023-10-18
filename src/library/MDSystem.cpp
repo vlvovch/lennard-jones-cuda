@@ -479,7 +479,7 @@ void MDSystem::Integrate(double dt)
       {
         float fx = h_Force[i], fy = h_Force[i + 1], fz = h_Force[i + 2];
 
-        h_Pos[i] += dt * h_Vel[i] + dt * dt * fx /*/ m *// 2.;
+        h_Pos[i] += dt * h_Vel[i] + dt * dt * fx /*/ m */ / 2.;
         h_Pos[i + 1] += dt * h_Vel[i + 1] + dt * dt * fy /*/ m*/ / 2.;
         h_Pos[i + 2] += dt * h_Vel[i + 2] + dt * dt * fz /*/ m*/ / 2.;
 
