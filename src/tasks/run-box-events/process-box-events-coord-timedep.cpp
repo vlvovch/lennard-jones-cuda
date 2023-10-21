@@ -62,6 +62,17 @@ int main(int argc, char *argv[]) {
   fout << Nalphas << " # Number of subvolumes" << endl;
   fout << endl;
 
+  cout   << setw(tabsize) << "t" << " "
+         << setw(tabsize) << "nevents" << " "
+         << setw(tabsize) << "alpha" << " "
+         << setw(tabsize) << "mean" << " "
+         << setw(tabsize) << "error" << " "
+         << setw(tabsize) << "wtil" << " "
+         << setw(tabsize) << "error" << " "
+         << setw(tabsize) << "Stil" << " "
+         << setw(tabsize) << "error" << " ";
+  cout << endl;
+
   for(int ifile = 0; ifile < filenames.size(); ifile++) {
     const string &filename = filenames[ifile];
     double t = times[ifile];
@@ -87,14 +98,14 @@ int main(int argc, char *argv[]) {
         assert(in1 == "Event" && in2 == "#");
         nevents++;
 
-        if (nevents % 100 == 0)
-          cout << "Reading event #" << nevents << endl;
+//        if (nevents % 100 == 0)
+//          cout << "Reading event #" << nevents << endl;
 
         fin >> in1 >> in2 >> in_int;
         assert(in1 == "N" && in2 == "=");
         if (nevents == 1) {
           N = in_int;
-          cout << "  N = " << N << endl;
+          //cout << "  N = " << N << endl;
         } else {
           assert(N == in_double);
         }
@@ -106,9 +117,9 @@ int main(int argc, char *argv[]) {
         assert(in1 == "rho*" && in2 == "=");
         if (nevents == 1) {
           rho = in_double;
-          cout << "rho* = " << rho << endl;
+          //cout << "rho* = " << rho << endl;
           L = pow(N / rho, 1. / 3.);
-          cout << "  L* = " << L << endl;
+          //cout << "  L* = " << L << endl;
         } else {
           assert(rho == in_double);
         }
@@ -116,7 +127,7 @@ int main(int argc, char *argv[]) {
         assert(in1 == "t*" && in2 == "=");
         if (nevents == 1) {
           t = in_double;
-          cout << "  t* = " << t << endl;
+          //cout << "  t* = " << t << endl;
         } else {
           assert(t == in_double);
         }
@@ -179,6 +190,7 @@ int main(int argc, char *argv[]) {
       int i = Nalphas / 2;
       double alpha = alpha_i(i);
       cout << setw(tabsize) << t << " "
+           << setw(tabsize) << nevents << " "
            << setw(tabsize) << alpha << " "
            << setw(tabsize) << stats[i].GetMean() << " "
            << setw(tabsize) << stats[i].GetMeanError() << " "
@@ -197,6 +209,7 @@ int main(int argc, char *argv[]) {
          << setw(tabsize) << "error" << " "
          << setw(tabsize) << "Stil" << " "
          << setw(tabsize) << "error" << " ";
+    fout << endl;
 
     for (int i = 0; i < Nalphas; i++) {
       double alpha = alpha_i(i);
