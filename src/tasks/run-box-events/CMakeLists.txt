@@ -8,3 +8,7 @@ target_link_libraries(run-box-events PUBLIC mdsystem)
 add_executable(process-box-events-coord process-box-events-coord.cpp)
 set_target_properties(process-box-events-coord PROPERTIES CUDA_SEPARABLE_COMPILATION OFF)
 target_link_libraries(process-box-events-coord PUBLIC mdsystem)
+
+add_executable(process-box-events-coord-timedep process-box-events-coord-timedep.cpp)
+set_target_properties(process-box-events-coord-timedep PROPERTIES CUDA_SEPARABLE_COMPILATION OFF)
+target_link_libraries(process-box-events-coord-timedep PUBLIC mdsystem)
