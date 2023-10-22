@@ -20,8 +20,6 @@ double alpha_i(int i) {
 }
 
 int main(int argc, char *argv[]) {
-  // For faster I/O
-  std::ios::sync_with_stdio(false);
 
   if (argc > 1) {
     filenames_file = string(argv[1]);

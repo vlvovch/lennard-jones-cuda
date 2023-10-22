@@ -23,9 +23,15 @@ double alpha_i(int i) {
   return dalpha * i;
 }
 
+// For calculating momentum/rapidity cuts
+double Tch         = 0.150; // GeV
+const double  mN   = 0.938; // GeV
+
+double ycm_from_ecm(double ecm) {
+  return log((ecm + sqrt(ecm*ecm - 4. * mN * mN) ) / 2. / mN);
+}
+
 int main(int argc, char *argv[]) {
-  // For faster I/O
-  std::ios::sync_with_stdio(false);
 
   if (argc > 1) {
     filename = string(argv[1]);
@@ -35,12 +41,18 @@ int main(int argc, char *argv[]) {
     dalpha = atof(argv[2]);
   }
 
+  // Center-of-mass energy
+  double ecm = 2. * mN;
   if (argc > 3) {
-    flowVz = atof(argv[3]);
+    ecm = atof(argv[3]);
   }
+  double ycm = ycm_from_ecm(ecm);
+  cout << "y_cm = " << ycm << " for \\sqrt{s_NN} = " << ecm << endl;
 
+  // Simulation temperature
+  double Tst   = 1.4;
   if (argc > 4) {
-    Vfactor = atof(argv[4]);
+    Tst = atof(argv[4]);
   }
 
   Nalphas = round(1. / dalpha) + 1;
@@ -121,15 +133,17 @@ int main(int argc, char *argv[]) {
         if (indz < Nalphas)
           cnts[indz]++;
 
-        // Momentum cuts
+        // Momentum/rapidity cuts
+        // Compute "rapidity" in heavy-ion coordinates
+        double yth  = vz * sqrt(Tch / (mN * Tst));
         // Add flow
-        double tvz = vz + flowVz * z - flowVz * 0.5 * L;
+        double ytot = yth + 2. * ycm * (z/L - 0.5);
 
         // Add counts
-        double dvz = dalpha * Vfactor;
-        int indvz = static_cast<int>(abs(tvz)/dvz) + 1;
-        if (indvz < Nalphas)
-          cntsVz[indvz]++;
+        double dytot = dalpha * (ycm + 2 * sqrt(Tch/mN));
+        int indy = static_cast<int>(abs(ytot)/dytot) + 1;
+        if (indy < Nalphas)
+          cntsVz[indy]++;
       }
 
       // Compute the prefix sums
@@ -176,7 +190,7 @@ int main(int argc, char *argv[]) {
 
   cout << endl;
   cout << "Momentum cuts:" << endl;
-  cout << setw(tabsize) << "v_z^cut" << " "
+  cout << setw(tabsize) << "y_cut" << " "
        << setw(tabsize) << "alpha" << " "
        << setw(tabsize) << "error" << " "
        << setw(tabsize) << "mean" << " "
@@ -188,10 +202,10 @@ int main(int argc, char *argv[]) {
   cout << endl;
 
   for(int i = 0; i < Nalphas; i++) {
-    double vzcut = dalpha * Vfactor * i;
-    double alpha = statsVz[i].GetMean() / N;
+    double ycut   = dalpha * (ycm + 2 * sqrt(Tch/mN));
+    double alpha  = statsVz[i].GetMean() / N;
     double dalpha = statsVz[i].GetMeanError() / N;
-    cout << setw(tabsize) << vzcut << " "
+    cout << setw(tabsize) << ycut << " "
          << setw(tabsize) << alpha << " "
          << setw(tabsize) << dalpha << " "
          << setw(tabsize) << statsVz[i].GetMean() << " "
