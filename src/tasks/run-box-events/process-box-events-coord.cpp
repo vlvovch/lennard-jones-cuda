@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
   cout << endl;
 
   for(int i = 0; i < Nalphas; i++) {
-    double ycut   = dalpha * (ycm + 2 * sqrt(Tch/mN));
+    double ycut   = i * dalpha * (ycm + 2 * sqrt(Tch/mN));
     double alpha  = statsVz[i].GetMean() / N;
     double dalpha = statsVz[i].GetMeanError() / N;
     cout << setw(tabsize) << ycut << " "
