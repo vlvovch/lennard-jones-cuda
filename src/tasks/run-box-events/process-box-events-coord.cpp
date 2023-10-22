@@ -15,6 +15,9 @@ int Nalphas = 10;
 double L = 1., dL = 0.1;
 double t = 50.;
 
+// For momentum cuts
+const double Vfactor = 3.0 * sqrt(1.4);
+
 double alpha_i(int i) {
   return dalpha * i;
 }
@@ -35,6 +38,7 @@ int main(int argc, char *argv[]) {
   cout << Nalphas << endl;
 
   vector<NumberStatistics> stats(Nalphas);
+  vector<NumberStatistics> statsVz(Nalphas);
 
   long long nevents = 0;
 
@@ -93,6 +97,7 @@ int main(int argc, char *argv[]) {
 
       // Initialize counters
       vector<int> cnts(Nalphas);
+      vector<int> cntsVz(Nalphas);
 
       // Process particles
       double x,y,z,vx,vy,vz;
@@ -103,15 +108,23 @@ int main(int argc, char *argv[]) {
         int indz = static_cast<int>((z/L) / dalpha) + 1;
         if (indz < Nalphas)
           cnts[indz]++;
+        double dvz = dalpha * Vfactor;
+        int indvz = static_cast<int>(abs(vz)/dvz) + 1;
+        if (indz < Nalphas)
+          cntsVz[indz]++;
       }
 
       // Compute the prefix sums
-      for(int i = 1; i < Nalphas; i++)
-        cnts[i] += cnts[i-1];
+      for(int i = 1; i < Nalphas; i++) {
+        cnts[i] += cnts[i - 1];
+        cntsVz[i] += cntsVz[i - 1];
+      }
 
       // Add the counts to the statistics
-      for(int i = 0; i < Nalphas; i++)
+      for(int i = 0; i < Nalphas; i++) {
         stats[i].AddObservation(cnts[i]);
+        statsVz[i].AddObservation(cntsVz[i]);
+      }
     }
   } else {
     cout << "Cannot open file " << filename << endl;
@@ -120,6 +133,8 @@ int main(int argc, char *argv[]) {
 
   // Print the statistics
   cout << "Statistics for " << nevents << " events" << endl;
+
+  cout << "Coordinate cuts:" << endl;
   cout << setw(tabsize) << "alpha" << " "
     << setw(tabsize) << "mean" << " "
     << setw(tabsize) << "error" << " "
@@ -138,6 +153,35 @@ int main(int argc, char *argv[]) {
       << setw(tabsize) << stats[i].GetScaledVarianceError() / (1.-alpha) << " "
       << setw(tabsize) << stats[i].GetSkewness() / abs(1.-2.*alpha) << " "
       << setw(tabsize) << stats[i].GetSkewnessError() / abs(1.-2.*alpha) << " ";
+    cout << endl;
+  }
+
+  cout << endl;
+  cout << "Momentum cuts:" << endl;
+  cout << setw(tabsize) << "v_z^cut" << " "
+       << setw(tabsize) << "alpha" << " "
+       << setw(tabsize) << "error" << " "
+       << setw(tabsize) << "mean" << " "
+       << setw(tabsize) << "error" << " "
+       << setw(tabsize) << "wtil" << " "
+       << setw(tabsize) << "error" << " ";
+//       << setw(tabsize) << "Stil" << " "
+//       << setw(tabsize) << "error" << " ";
+  cout << endl;
+
+  for(int i = 0; i < Nalphas; i++) {
+    double vzcut = dalpha * Vfactor * i;
+    double alpha = statsVz[i].GetMean() / N;
+    double dalpha = statsVz[i].GetMeanError() / N;
+    cout << setw(tabsize) << vzcut << " "
+         << setw(tabsize) << alpha << " "
+         << setw(tabsize) << dalpha << " "
+         << setw(tabsize) << stats[i].GetMean() << " "
+         << setw(tabsize) << stats[i].GetMeanError() << " "
+         << setw(tabsize) << stats[i].GetScaledVariance() / (1.-alpha) << " "
+         << setw(tabsize) << stats[i].GetScaledVarianceError() / (1.-alpha) << " ";
+//         << setw(tabsize) << stats[i].GetSkewness() / abs(1.-2.*alpha) << " "
+//         << setw(tabsize) << stats[i].GetSkewnessError() / abs(1.-2.*alpha) << " ";
     cout << endl;
   }
 
