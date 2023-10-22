@@ -17,6 +17,7 @@ double t = 50.;
 
 // For momentum cuts
 const double Vfactor = 3.0 * sqrt(1.4);
+double flowVz = 0.0;
 
 double alpha_i(int i) {
   return dalpha * i;
@@ -29,6 +30,10 @@ int main(int argc, char *argv[]) {
 
   if (argc > 2) {
     dalpha = atof(argv[2]);
+  }
+
+  if (argc > 3) {
+    flowVz = atof(argv[3]);
   }
 
   Nalphas = round(1. / dalpha) + 1;
@@ -108,8 +113,14 @@ int main(int argc, char *argv[]) {
         int indz = static_cast<int>((z/L) / dalpha) + 1;
         if (indz < Nalphas)
           cnts[indz]++;
+
+        // Momentum cuts
+        // Add flow
+        double tvz = vz + flowVz * z;
+
+        // Add counts
         double dvz = dalpha * Vfactor;
-        int indvz = static_cast<int>(abs(vz)/dvz) + 1;
+        int indvz = static_cast<int>(abs(tvz)/dvz) + 1;
         if (indvz < Nalphas)
           cntsVz[indvz]++;
       }
