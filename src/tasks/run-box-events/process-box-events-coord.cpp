@@ -110,8 +110,8 @@ int main(int argc, char *argv[]) {
           cnts[indz]++;
         double dvz = dalpha * Vfactor;
         int indvz = static_cast<int>(abs(vz)/dvz) + 1;
-        if (indz < Nalphas)
-          cntsVz[indz]++;
+        if (indvz < Nalphas)
+          cntsVz[indvz]++;
       }
 
       // Compute the prefix sums
