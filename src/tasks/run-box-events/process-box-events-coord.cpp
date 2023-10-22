@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
 
         // Momentum cuts
         // Add flow
-        double tvz = vz + flowVz * z;
+        double tvz = vz + flowVz * z - flowVz * 0.5 * L;
 
         // Add counts
         double dvz = dalpha * Vfactor;
