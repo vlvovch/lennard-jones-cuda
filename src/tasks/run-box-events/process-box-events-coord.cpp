@@ -176,10 +176,10 @@ int main(int argc, char *argv[]) {
     cout << setw(tabsize) << vzcut << " "
          << setw(tabsize) << alpha << " "
          << setw(tabsize) << dalpha << " "
-         << setw(tabsize) << stats[i].GetMean() << " "
-         << setw(tabsize) << stats[i].GetMeanError() << " "
-         << setw(tabsize) << stats[i].GetScaledVariance() / (1.-alpha) << " "
-         << setw(tabsize) << stats[i].GetScaledVarianceError() / (1.-alpha) << " ";
+         << setw(tabsize) << statsVz[i].GetMean() << " "
+         << setw(tabsize) << statsVz[i].GetMeanError() << " "
+         << setw(tabsize) << statsVz[i].GetScaledVariance() / (1.-alpha) << " "
+         << setw(tabsize) << statsVz[i].GetScaledVarianceError() / (1.-alpha) << " ";
 //         << setw(tabsize) << stats[i].GetSkewness() / abs(1.-2.*alpha) << " "
 //         << setw(tabsize) << stats[i].GetSkewnessError() / abs(1.-2.*alpha) << " ";
     cout << endl;
