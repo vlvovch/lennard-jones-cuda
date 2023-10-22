@@ -16,7 +16,7 @@ double L = 1., dL = 0.1;
 double t = 50.;
 
 // For momentum cuts
-const double Vfactor = 3.0 * sqrt(1.4);
+double Vfactor = 1.0;
 double flowVz = 0.0;
 
 double alpha_i(int i) {
@@ -34,6 +34,10 @@ int main(int argc, char *argv[]) {
 
   if (argc > 3) {
     flowVz = atof(argv[3]);
+  }
+
+  if (argc > 4) {
+    Vfactor = atof(argv[4]);
   }
 
   Nalphas = round(1. / dalpha) + 1;
