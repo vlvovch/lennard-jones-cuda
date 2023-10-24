@@ -423,11 +423,13 @@ void MDSystem::RenormalizeVelocities(bool RecalculateTkin)
   U = K + V;
 }
 
-void MDSystem::RenormalizeVelocitiesToEnergy(double ust)
+bool MDSystem::RenormalizeVelocitiesToEnergy(double ust)
 {
   double Kold = K;
   double Udes = ust * m_config.N;
   double Kdes = Udes - V;
+  if (Kdes < 0) // Negative kinetic energy
+    return false;
   for (int i = 0; i < 4 * m_config.N; i += 4)
   {
     h_Vel[i] *= sqrt(Kdes / Kold);
@@ -436,6 +438,7 @@ void MDSystem::RenormalizeVelocitiesToEnergy(double ust)
   }
   K = Kdes;
   U = K + V;
+  return true;
 }
 
 void MDSystem::ApplyBoundaryConditions()

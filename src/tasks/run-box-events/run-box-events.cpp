@@ -76,7 +76,8 @@ int main(int argc, char *argv[])
 
     syst.Reinitialize(config);
     if (!config.canonical) {
-      syst.RenormalizeVelocitiesToEnergy(ust);
+      while (!syst.RenormalizeVelocitiesToEnergy(ust))
+        syst.Reinitialize(config);
     }
 
     //cout << setw(tabsize) << "t" << " " << setw(tabsize) << "u*" << " " << setw(tabsize) << "T*" << endl;

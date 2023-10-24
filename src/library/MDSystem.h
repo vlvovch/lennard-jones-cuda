@@ -131,7 +131,9 @@ public:
 
   void RenormalizeVelocities(bool RecalculateTkin = false);
 
-  void RenormalizeVelocitiesToEnergy(double ust);
+  // Renormalize velocities to match given energy in the microcanonical ensemble
+  // Returns false if this would result in negative kinetic energy
+  bool RenormalizeVelocitiesToEnergy(double ust);
 
   void ApplyBoundaryConditions();
 
