@@ -5,6 +5,16 @@
 
 #include <math.h>
 
+// Backward compatibility with very old CUDA toolkits (< 4.0)
+#if defined(CUDART_VERSION) && (CUDART_VERSION < 4000)
+#ifndef cudaDeviceSynchronize
+#define cudaDeviceSynchronize cudaThreadSynchronize
+#endif
+#ifndef cudaDeviceReset
+#define cudaDeviceReset cudaThreadExit
+#endif
+#endif
+
 // cube length
 __device__ __constant__ float L;
 
