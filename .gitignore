@@ -28,3 +28,6 @@ out/*
 
 # Doxygen
 docs/doxygen/html*
+
+# DS_Store
+.DS_Store

@@ -34,7 +34,7 @@ struct RunBoxEventsParameters {
   RunBoxEventsParameters(const std::string& input_file = "") :
     output_prefix("run"),
     parameters({
-      {"nevents",     1000},        // the number of events
+      {"nevents",       10},        // the number of events
       {"N",            400},        // the number of particles
       {"T*",           1.4},        // the temperature, ignored if the microcanonical ensemble is used
       {"u*",       -0.0458},        // the energy per particle, ignored if the canonical ensemble is used
