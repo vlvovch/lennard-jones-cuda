@@ -55,7 +55,7 @@ set_target_properties(QtLennardJones PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 if (CMAKE_CUDA_COMPILER)
     # Only set a default if the user hasn't provided one
     if (NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-        set_property(TARGET QtLennardJones PROPERTY CUDA_ARCHITECTURES 60;70;75;80;86;52-virtual)
+        set_property(TARGET QtLennardJones PROPERTY CUDA_ARCHITECTURES native)
     endif()
 endif()
 target_link_libraries(QtLennardJones PUBLIC mdsystem
