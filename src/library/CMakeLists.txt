@@ -30,8 +30,13 @@ if(CMAKE_CUDA_COMPILER)
     set_target_properties(mdsystem
             PROPERTIES  CUDA_RESOLVE_DEVICE_SYMBOLS ON
             CUDA_SEPARABLE_COMPILATION OFF
-            CUDA_ARCHITECTURES OFF
             )
 
-endif(CMAKE_CUDA_COMPILER)
+    # Provide sensible default architectures if not specified by the user.
+    # Include a PTX fallback (52-virtual) to allow JIT on newer GPUs.
+    if (NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+        # Real SASS for a broad range + PTX for JIT
+        set_property(TARGET mdsystem PROPERTY CUDA_ARCHITECTURES 60;70;75;80;86;52-virtual)
+    endif()
 
+endif(CMAKE_CUDA_COMPILER)

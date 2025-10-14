@@ -51,7 +51,13 @@ add_executable(QtLennardJones ${SRCS_QtLennardJones} qttficon.rc)
 set_target_properties(QtLennardJones PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 #set_target_properties(QtLennardJones PROPERTIES POSITION_INDEPENDENT_CODE ON)
 #set_target_properties(QtLennardJones PROPERTIES CUDA_RESOLVE_DEVICE_SYMBOLS ON)
-set_property(TARGET QtLennardJones PROPERTY CUDA_ARCHITECTURES OFF)
+
+if (CMAKE_CUDA_COMPILER)
+    # Only set a default if the user hasn't provided one
+    if (NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+        set_property(TARGET QtLennardJones PROPERTY CUDA_ARCHITECTURES 60;70;75;80;86;52-virtual)
+    endif()
+endif()
 target_link_libraries(QtLennardJones PUBLIC mdsystem
 Qt5::Core Qt5::Widgets Qt5::PrintSupport Qt5::OpenGL Qt5::OpenGLExtensions
 ${OPENGL_gl_LIBRARY} )
