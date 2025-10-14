@@ -229,7 +229,8 @@ extern "C"
     //checkCudaErrors(cudaGLUnregisterBufferObject(pbo));
   }
 
-  void threadSync() { cudaThreadSynchronize(); }
+  // Synchronize device (replaces deprecated cudaThreadSynchronize)
+  void threadSync() { cudaDeviceSynchronize(); }
 
   void
     calculateNForces(float* Pos, float* Force, float* host_pressure,
@@ -300,9 +301,10 @@ extern "C"
   }
 
 
+  // Reset device (replaces deprecated cudaThreadExit)
   void threadExit()
   {
-    cudaThreadExit();
+    cudaDeviceReset();
   }
 
 }
